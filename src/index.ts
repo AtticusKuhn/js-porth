@@ -18,6 +18,8 @@ type loc = {
 }
 type Conditional = { type: 'if', body: AST } & loc
     | { type: 'ifElse', body: AST, elseBranch: AST, elseCondition?: AST } & loc
+type Proc = { type: "proc", name: string, body: AST } & loc
+type Constant = { type: 'const', name: string, body: AST } & loc
 type Node = { type: "number_literal", value: number } & loc
     | { type: "string_literal", value: string } & loc
     | { type: 'plus', value: '+' } & loc
@@ -30,11 +32,12 @@ type Node = { type: "number_literal", value: number } & loc
     | { type: 'lt', value: '<' } & loc
     | { type: 'eq', value: '=' } & loc
     | { type: 'identifier', value: string } & loc
-    | { type: 'const', name: string, body: AST } & loc
+    | Constant
     | { type: 'macro', name: string, body: AST } & loc
     | { type: 'memory', name: string, body: AST } & loc
     | { type: 'while', condition: AST, body: AST } & loc
     | Conditional
+    | Proc
 
 
 
@@ -56,14 +59,70 @@ function parse(code: string): either<string, AST> {
     return right(parser.results[0])
 
 }
-function evalStatements(ast: AST): number | string {
-    const code = new Function(`${genCode(ast)};\n return stack[0];`)
-    return code()
+type Context = {
+    procs: Record<string, Proc>,
+    consts: Record<string, number>
+}
+// type constVal = string | number;
+const getContext = (ast: AST): { ast: AST, context: Context } => {
+    const ctx: Context = {
+        procs: {},
+        consts: {}
+    };
+    for (const node of ast) {
+        if (node.type === "const") {
+            ctx.consts[node.name] = evalStatements(node.body, ctx)
+        }
+        if (node.type === "proc") {
+            ctx.procs[node.name] = node
+        }
+    }
+    for (let i = 0; i < ast.length; i++) {
+        let node = ast[i]
+        if (node.type === "identifier") {
+            if (node.value in ctx.consts) {
+                //@ts-ignore
+                node.type = "number_literal"
+                //@ts-ignore
+                node.value = ctx.consts[node.value]
+            } else {
+                throw new Error(`no value found for the idenfitifer: ${node.value}`)
+            }
+        }
+        if (node.type === "const") {
+            delete ast[i]
+        }
+        // if(node.type === "")
+    }
+    return { ast, context: ctx }
+}
+// const preProcessor = (ast: AST, context: Context): either<string, AST> => {
+//     for (const node of ast) {
+//         if (node.type === 'const') {
+
+//         }
+//         if (node.type === "identifier") {
+//             if (node.value in context.consts) {
+//                 const c = context.consts[node.value]
+//                 //@ts-ignore
+//                 node.type = c.body.type
+//                 //@ts-ignore
+//                 node.value = c.body.value
+//             }
+//         }
+//     }
+//     return right(ast)
+// }
+function evalStatements(ast: AST, ctx: Context): number {
+    const evalledCode = `${genCode(ast, ctx)};\n return stack[0];`
+    const code = new Function(evalledCode);
+    return code();
+
 }
 function assertUnreachable(x: never): never {
     throw new Error(` ${JSON.stringify(x, null, 4)} Didn't expect to get here`);
 }
-function genCodeAux(ast: AST): string {
+function genCodeAux(ast: AST, ctx: Context): string {
     return ast.map((node: Node) => {
         let code = ""
         switch (node.type) {
@@ -80,15 +139,13 @@ function genCodeAux(ast: AST): string {
                 code += `stack.print()`
                 break
             case "const":
-                code += `                // const loop
-const ${node.name} = ${evalStatements(node.body)
-                    } `
+                code += `stack.push(${ctx.consts[node.name]})`
                 break
             case "while":
                 code += `
 // while loop
 while (
-    ((stack) => { ${genCodeAux(node.condition)}; return stack.pop() })(stack)) { ${genCodeAux(node.body)} } `
+    ((stack) => { ${genCodeAux(node.condition, ctx)}; return stack.pop() })(stack)) { ${genCodeAux(node.body, ctx)} } `
                 break
             case "swap":
                 code += `stack.swap()`; break
@@ -104,6 +161,14 @@ while (
                 code += `stack.lt(); `; break
             case "identifier":
                 code += `//identifier ${node.value} \n`
+                if (node.value in ctx.consts) {
+                    code += `stack.push(${ctx.consts[node.value]})`
+                } else if (node.value in ctx.procs) {
+                    code += `${ctx.procs[node.value]}()`
+                } else {
+                    throw new Error(`undefined indentifier ${node.value}`)
+                }
+                // code += `throw new Error("there should be no identifiers in the final code: ${node.value}");\n`
                 break;
             case "eq":
                 code += "stack.eq()"; break;
@@ -112,9 +177,11 @@ while (
             case "memory":
                 throw new Error(`memory is not implemented`)
             case "if":
-                code += `if(stack.pop()){${genCodeAux(node.body)}}`; break
+                code += `if(stack.pop()){${genCodeAux(node.body, ctx)}}`; break
             case "ifElse":
-                code += `if(stack.pop()){${genCodeAux(node.body)}}else{ ${node.elseCondition ? genCodeAux(node.elseCondition) : ""}; ${genCodeAux(node.elseBranch)}}`; break
+                code += `if(stack.pop()){${genCodeAux(node.body, ctx)}}else{ ${node.elseCondition ? genCodeAux(node.elseCondition, ctx) : ""}; ${genCodeAux(node.elseBranch, ctx)}}`; break
+            case "proc":
+                throw new Error(`proc is not yet implemented`)
             default:
                 return assertUnreachable(node)
         }
@@ -122,18 +189,25 @@ while (
     }).join(";\n")
 }
 
-function genCode(ast: AST): string {
-    const main = genCodeAux(ast);
+function genCode(ast: AST, ctx: Context): string {
+    const main = genCodeAux(ast, ctx);
     const header = `let stack = []; \n
 Array.prototype.lt = function () {
-    return this.push(this.pop() > this.pop())
+    let a = this.pop();
+    let b = this.pop();
+    if(a===undefined || b===undefined) throw new Error("not enough arguments for lt")
+    return this.push(a > b)
 }
 Array.prototype.eq = function () {
-    return this.push(this.pop() === this.pop())
+    let a = this.pop();
+    let b = this.pop();
+    if(a===undefined || b===undefined) throw new Error("not enough arguments for eq")
+    return this.push(a === b)
 }
 Array.prototype.mod = function () {
     let a = this.pop()
     let b=  this.pop()
+    if(a===undefined || b===undefined) throw new Error("not enough arguments for mod")
     return this.push(b % a )
 }
 Array.prototype.over = function () {
@@ -148,39 +222,46 @@ Array.prototype.over = function () {
 }
 Array.prototype.dup = function () {
     let a = this.pop()
+    if(a===undefined) throw new Error("not enough arguments for dup")
     this.push(a)
     this.push(a)
 }
 Array.prototype.drop = function () {
-    this.pop()
+    let a= this.pop()
+    if(a===undefined) throw new Error("not enough arguments for drop")
 }
 Array.prototype.plus = function () {
-    stack.push(stack.pop() + stack.pop())
+    let a = this.pop();
+    let b = this.pop();
+    if(a===undefined || b===undefined) throw new Error("not enough arguments for plus")
+    this.push(a+b)
 }
 Array.prototype.print = function () {
-    console.log(stack.pop())
+    let a =this.pop()
+    if(a===undefined) throw new Error("not enough arguments for print")
+    console.log(a)
 }
 Array.prototype.swap = function () {
-    let a = stack.pop()
-    let b = stack.pop()
+    let a = this.pop()
+    let b = this.pop()
     if (a === undefined || b === undefined) {
         throw new Error("not enough arguments for swap intrinsic")
     }
-    stack.push(a)
-    stack.push(b)
+    this.push(a)
+    this.push(b)
 }
     `
     return header + main;
 }
 function main() {
     const prog = fs.readFileSync("src/example.porth", "utf-8")
-    const ast = parse(prog)
-
-    if (ast.type === "fail") {
-        throw new Error(ast.value)
+    const maybeAST = parse(prog)
+    if (maybeAST.type === "fail") {
+        throw new Error(maybeAST.value)
     } else {
-        fs.writeFileSync("./ast.json", JSON.stringify(ast.value, null, 4))
-        const code = genCode(ast.value)
+        const { ast, context } = getContext(maybeAST.value)
+        fs.writeFileSync("./ast.json", JSON.stringify(ast, null, 4))
+        const code = genCode(ast, context)
         fs.writeFileSync("./generated.js", code)
     }
 }

@@ -1,12 +1,4 @@
-1 while dup 100 < do
-  dup 15 mod 0 = if
-    "FizzBuzz" print
-  else dup 3 mod 0 = if
-    "Fizz" print
-  else dup 5 mod 0 = if
-    "Buzz" print
-  else 
-    dup print
-  end
-  1 +
-end drop
+const n 1 end
+const p n 2 + end
+const q  p p +  end
+q print
