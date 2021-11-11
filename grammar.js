@@ -39,12 +39,47 @@ function convertTokenId(data) {
 var grammar = {
     Lexer: lexer,
     ParserRules: [
-    {"name": "program", "symbols": ["statements"], "postprocess": id},
+    {"name": "program", "symbols": ["_ml", "statements", "_ml"], "postprocess": d=>d[1]},
     {"name": "statements", "symbols": ["statement", "_ml", "statements"], "postprocess": (d)=>[d[0], ...d[2]]},
     {"name": "statements", "symbols": ["statement"], "postprocess": (d)=>d},
     {"name": "statement", "symbols": ["number"], "postprocess": id},
     {"name": "statement", "symbols": ["intrinsic"], "postprocess": id},
     {"name": "statement", "symbols": ["identifier"], "postprocess": id},
+    {"name": "statement", "symbols": ["macro"], "postprocess": id},
+    {"name": "statement", "symbols": ["proc"], "postprocess": id},
+    {"name": "statement", "symbols": ["constStatement"], "postprocess": id},
+    {"name": "statement", "symbols": ["include"], "postprocess": id},
+    {"name": "statement", "symbols": ["ifStatement"], "postprocess": id},
+    {"name": "statement", "symbols": ["whileStatement"], "postprocess": id},
+    {"name": "whileStatement", "symbols": [(lexer.has("whileStatement") ? {type: "whileStatement"} : whileStatement), "_ml", "statements", "_ml", (lexer.has("doStatement") ? {type: "doStatement"} : doStatement), "_ml", "statements", "_ml", (lexer.has("end") ? {type: "end"} : end)], "postprocess": d=>({
+           type:"while",
+           condition: d[2],
+           body: d[6],
+        })},
+    {"name": "ifStatement", "symbols": [(lexer.has("ifStatement") ? {type: "ifStatement"} : ifStatement), "_ml", "statements", "_ml", (lexer.has("doStatement") ? {type: "doStatement"} : doStatement), "_ml", "statements", "_ml", (lexer.has("end") ? {type: "end"} : end)], "postprocess": d=>({
+            type:"if",
+            condition: d[2],
+            body: d[6],
+        })},
+    {"name": "macro", "symbols": [(lexer.has("macro") ? {type: "macro"} : macro), "_ml", "identifier", "_ml", "statements", "_ml", (lexer.has("end") ? {type: "end"} : end)], "postprocess": d=>({
+            type:"macro",
+            name:d[2].value,
+            body:d[4]
+        })},
+    {"name": "proc", "symbols": [(lexer.has("proc") ? {type: "proc"} : proc), "_ml", "identifier", "_ml", "statements", "_ml", (lexer.has("end") ? {type: "end"} : end)], "postprocess": d=>({
+            type:"proc",
+            name:d[2].value,
+            body:d[4]
+        })},
+    {"name": "constStatement", "symbols": [(lexer.has("constStatement") ? {type: "constStatement"} : constStatement), "_ml", "identifier", "_ml", "statements", "_ml", (lexer.has("end") ? {type: "end"} : end)], "postprocess": d=>({
+            type:"const",
+            name:d[2].value,
+            body:d[4]
+        })},
+    {"name": "include", "symbols": [(lexer.has("include") ? {type: "include"} : include), "_ml", "string_literal"], "postprocess": d=>({
+            type:"include",
+            file:d[2],
+        })},
     {"name": "line_comment", "symbols": [(lexer.has("comment") ? {type: "comment"} : comment)], "postprocess": convertTokenId},
     {"name": "string_literal", "symbols": [(lexer.has("string_literal") ? {type: "string_literal"} : string_literal)], "postprocess": convertTokenId},
     {"name": "number", "symbols": [(lexer.has("number_literal") ? {type: "number_literal"} : number_literal)], "postprocess": convertTokenId},
@@ -57,12 +92,16 @@ var grammar = {
     {"name": "intrinsic", "symbols": [(lexer.has("eq") ? {type: "eq"} : eq)], "postprocess": convertTokenId},
     {"name": "intrinsic", "symbols": [(lexer.has("gt") ? {type: "gt"} : gt)], "postprocess": convertTokenId},
     {"name": "intrinsic", "symbols": [(lexer.has("lt") ? {type: "lt"} : lt)], "postprocess": convertTokenId},
+    {"name": "intrinsic", "symbols": [(lexer.has("over") ? {type: "over"} : over)], "postprocess": convertTokenId},
+    {"name": "intrinsic", "symbols": [(lexer.has("swap") ? {type: "swap"} : swap)], "postprocess": convertTokenId},
+    {"name": "intrinsic", "symbols": [(lexer.has("dup") ? {type: "dup"} : dup)], "postprocess": convertTokenId},
     {"name": "identifier", "symbols": [(lexer.has("identifier") ? {type: "identifier"} : identifier)], "postprocess": convertTokenId},
     {"name": "_ml$ebnf$1", "symbols": []},
     {"name": "_ml$ebnf$1", "symbols": ["_ml$ebnf$1", "multi_line_ws_char"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
     {"name": "_ml", "symbols": ["_ml$ebnf$1"]},
     {"name": "multi_line_ws_char", "symbols": [(lexer.has("ws") ? {type: "ws"} : ws)]},
     {"name": "multi_line_ws_char", "symbols": [{"literal":"\n"}]},
+    {"name": "multi_line_ws_char", "symbols": [{"literal":"\t"}]},
     {"name": "__$ebnf$1", "symbols": [(lexer.has("ws") ? {type: "ws"} : ws)]},
     {"name": "__$ebnf$1", "symbols": ["__$ebnf$1", (lexer.has("ws") ? {type: "ws"} : ws)], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
     {"name": "__", "symbols": ["__$ebnf$1"]},

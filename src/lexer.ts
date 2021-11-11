@@ -35,7 +35,7 @@ export const lexer = moo.compile({
         value: s => Number(s)
     },
     intrinsic: {
-        match: /\+|\-|\*|divmod|max|print|\=|\>|\</,
+        match: /\+|\-|\*|divmod|max|print|over|swap|dup|\=|\>|\</,
         type: moo.keywords({
             plus: "+",
             minus: "-",
@@ -46,19 +46,23 @@ export const lexer = moo.compile({
             eq: "=",
             gt: ">",
             lt: "<",
+            over: "over",
+            swap: "swap",
+            dup: "dup",
+
         })
     },
     identifier: {
-        match: /[a-z_][a-z_0-9]*/,
+        match: /[A-Za-z_][a-zA-Z_0-9]*/,
         type: moo.keywords({
-            if: "if",
-            else: "else",
-            while: "while",
-            do: "do",
+            ifStatement: "if",
+            elseStatement: "else",
+            whileStatement: "while",
+            doStatement: "do",
             include: "include",
             memory: "memory",
             proc: "proc",
-            const: "const",
+            constStatement: "const",
             end: "end",
             offset: 'offset',
             reset: "reset",

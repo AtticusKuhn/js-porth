@@ -36,12 +36,48 @@ function convertTokenId(data) {
 
 @lexer lexer
 
-program -> statements {% id %}
+program -> _ml statements _ml {% d=>d[1] %}
 statements -> statement _ml statements {%(d)=>[d[0], ...d[2]]%}
     | statement {%(d)=>d%}
 statement ->  number  {%id%}
     | intrinsic  {%id%}
-    |identifier {%id%}
+    | identifier {%id%}
+    | macro {%id%}
+    | proc {%id%}
+    | constStatement {%id%}
+    | include {%id%}
+    | ifStatement {%id%}
+    | whileStatement {%id%}
+
+whileStatement -> %whileStatement _ml statements _ml %doStatement _ml statements _ml %end  {%d=>({
+   type:"while",
+   condition: d[2],
+   body: d[6],
+})%}
+ifStatement -> %ifStatement _ml statements  _ml %doStatement  _ml statements _ml %end  {%d=>({
+    type:"if",
+    condition: d[2],
+    body: d[6],
+})%}
+macro -> %macro _ml identifier _ml  statements _ml %end {%d=>({
+    type:"macro",
+    name:d[2].value,
+    body:d[4]
+})%}
+proc -> %proc _ml identifier _ml  statements _ml %end {%d=>({
+    type:"proc",
+    name:d[2].value,
+    body:d[4]
+})%}
+constStatement -> %constStatement _ml identifier _ml statements _ml %end {%d=>({
+    type:"const",
+    name:d[2].value,
+    body:d[4]
+})%}
+include -> %include _ml string_literal {%d=>({
+    type:"include",
+    file:d[2],
+})%}
 
 line_comment -> %comment {% convertTokenId %}
 
@@ -50,14 +86,18 @@ string_literal -> %string_literal {% convertTokenId %}
 number -> %number_literal {% convertTokenId %}
 
 intrinsic -> %plus {% convertTokenId %}
-        |    %print {% convertTokenId %}
-    | %minus {% convertTokenId %}
-     |       %timed {% convertTokenId %}
-      |      %divmod {% convertTokenId %}
-       |     %max {% convertTokenId %}
-         |   %eq {% convertTokenId %}
-          |  %gt {% convertTokenId %}
-           | %lt {% convertTokenId %} 
+    |    %print {% convertTokenId %}
+    |   %minus {% convertTokenId %}
+    |       %timed {% convertTokenId %}
+    |      %divmod {% convertTokenId %}
+    |     %max {% convertTokenId %}
+    |   %eq {% convertTokenId %}
+    |  %gt {% convertTokenId %}
+    | %lt {% convertTokenId %} 
+    | %over {% convertTokenId %} 
+    | %swap {% convertTokenId %} 
+    | %dup {% convertTokenId %} 
+
 identifier -> %identifier {% convertTokenId %}
 
 _ml -> multi_line_ws_char:*
@@ -65,6 +105,7 @@ _ml -> multi_line_ws_char:*
 multi_line_ws_char
     -> %ws
     |  "\n"
+    | "\t"
 
 __ -> %ws:+
 
