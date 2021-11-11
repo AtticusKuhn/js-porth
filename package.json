@@ -1,0 +1,22 @@
+{
+  "name": "js-porth",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "gp": "tsc && nearleyc ./src/porth.ne -o grammar.js",
+    "run": "tsc && node ./dist/index.js",
+    "all": "tsc && nearleyc ./src/porth.ne -o grammar.js && node ./dist/index.js && node ./generated.js",
+    "up": "nearley-unparse -s program grammar.js"
+  },
+  "dependencies": {
+    "moo": "^0.5.1",
+    "nearley": "^2.20.1",
+    "typescript": "^4.4.4"
+  },
+  "devDependencies": {
+    "@types/moo": "^0.5.5",
+    "@types/nearley": "^2.11.2",
+    "@types/node": "^16.11.7"
+  }
+}
