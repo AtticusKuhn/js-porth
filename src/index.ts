@@ -19,10 +19,13 @@ type loc = {
 type Conditional = { type: 'if', body: AST } & loc
     | { type: 'ifElse', body: AST, elseBranch: AST, elseCondition?: AST } & loc
 type Proc = { type: "proc", name: string, body: AST } & loc
+type str = { type: "string_literal", value: string } & loc
 type Constant = { type: 'const', name: string, body: AST } & loc
 type Node = { type: "number_literal", value: number } & loc
-    | { type: "string_literal", value: string } & loc
+    | str
+    | { type: "include", file: str }
     | { type: 'plus', value: '+' } & loc
+    | { type: 'minus', value: '-' } & loc
     | { type: 'print', value: 'print' } & loc
     | { type: 'swap', value: 'swap' } & loc
     | { type: 'over', value: 'over' } & loc
@@ -36,6 +39,13 @@ type Node = { type: "number_literal", value: number } & loc
     | { type: 'macro', name: string, body: AST } & loc
     | { type: 'memory', name: string, body: AST } & loc
     | { type: 'while', condition: AST, body: AST } & loc
+    | { type: 'comment', value: string } & loc
+    | { type: 'load8', value: "@8" } & loc
+    | { type: 'store8', value: "!8" } & loc
+    | { type: 'shl', value: "shl" } & loc
+    | { type: 'shr', value: "shr" } & loc
+    | { type: 'or', value: "or" } & loc
+    | { type: 'and', value: "and" } & loc
     | Conditional
     | Proc
 
@@ -61,13 +71,17 @@ function parse(code: string): either<string, AST> {
 }
 type Context = {
     procs: Record<string, Proc>,
-    consts: Record<string, number>
+    consts: Record<string, number>,
+    memories: Record<string, number>,
+    memorySize: number;
 }
 // type constVal = string | number;
 const getContext = (ast: AST): { ast: AST, context: Context } => {
     const ctx: Context = {
         procs: {},
-        consts: {}
+        consts: {},
+        memories: {},
+        memorySize: 0
     };
     for (const node of ast) {
         if (node.type === "const") {
@@ -76,8 +90,13 @@ const getContext = (ast: AST): { ast: AST, context: Context } => {
         if (node.type === "proc") {
             ctx.procs[node.name] = node
         }
+        if (node.type === "memory") {
+            ctx.memories[node.name] = ctx.memorySize
+            ctx.memorySize += evalStatements(node.body, ctx)
+        }
     }
-    for (let i = 0; i < ast.length; i++) {
+    let l = ast.length;
+    for (let i = 0; i < l; i++) {
         let node = ast[i]
         if (node.type === "identifier") {
             if (node.value in ctx.consts) {
@@ -85,12 +104,25 @@ const getContext = (ast: AST): { ast: AST, context: Context } => {
                 node.type = "number_literal"
                 //@ts-ignore
                 node.value = ctx.consts[node.value]
+            } else if (node.value in ctx.memories) {
+                //@ts-ignore
+                node.type = "number_literal"
+                //@ts-ignore
+                node.value = ctx.memories[node.value]
             } else {
                 throw new Error(`no value found for the idenfitifer: ${node.value}`)
             }
         }
         if (node.type === "const") {
-            delete ast[i]
+            ast.splice(i, 1);
+            l--;
+        }
+        if (node.type === "include") {
+            const file = parseAndProcess(fs.readFileSync(node.file.value, "utf-8"))
+            ast.splice(i, 1);
+            // Object.assign(ctx, file.context)
+            ast.splice(i, 0, ...file.ast)
+            l += file.ast.length - 1
         }
         // if(node.type === "")
     }
@@ -125,6 +157,7 @@ function assertUnreachable(x: never): never {
 function genCodeAux(ast: AST, ctx: Context): string {
     return ast.map((node: Node) => {
         let code = ""
+        code += `// code for ${node.type} \n`
         switch (node.type) {
             case "number_literal":
                 code += `stack.push(${node.value})`
@@ -134,6 +167,9 @@ function genCodeAux(ast: AST, ctx: Context): string {
                 break
             case "plus":
                 code += `stack.plus()`
+                break;
+            case "minus":
+                code += `stack.minus()`
                 break;
             case "print":
                 code += `stack.print()`
@@ -165,6 +201,8 @@ while (
                     code += `stack.push(${ctx.consts[node.value]})`
                 } else if (node.value in ctx.procs) {
                     code += `${ctx.procs[node.value]}()`
+                } else if (node.value in ctx.memories) {
+                    code += `stack.push(${ctx.memories[node.value]})`
                 } else {
                     throw new Error(`undefined indentifier ${node.value}`)
                 }
@@ -175,13 +213,29 @@ while (
             case "macro":
                 throw new Error(`should not occur at this stage of compilation`)
             case "memory":
-                throw new Error(`memory is not implemented`)
+                code += `stack.push(${ctx.memories[node.name]})`; break
             case "if":
                 code += `if(stack.pop()){${genCodeAux(node.body, ctx)}}`; break
             case "ifElse":
                 code += `if(stack.pop()){${genCodeAux(node.body, ctx)}}else{ ${node.elseCondition ? genCodeAux(node.elseCondition, ctx) : ""}; ${genCodeAux(node.elseBranch, ctx)}}`; break
             case "proc":
                 throw new Error(`proc is not yet implemented`)
+            case "comment":
+                code += `//${node.value} \n`; break
+            case "load8":
+                code += `stack.load8()`; break
+            case "store8":
+                code += `stack.store8()`; break
+            case "shl":
+                code += `stack.shr()`; break
+            case "shr":
+                code += `stack.shl()`; break
+            case "or":
+                code += `stack.or()`; break
+            case "and":
+                code += `stack.and()`; break
+            case "include":
+                code += `// include file \n`; break
             default:
                 return assertUnreachable(node)
         }
@@ -192,11 +246,12 @@ while (
 function genCode(ast: AST, ctx: Context): string {
     const main = genCodeAux(ast, ctx);
     const header = `let stack = []; \n
+    let memory  = new Uint8Array(${ctx.memorySize});    
 Array.prototype.lt = function () {
     let a = this.pop();
     let b = this.pop();
     if(a===undefined || b===undefined) throw new Error("not enough arguments for lt")
-    return this.push(a > b)
+    return this.push(a < b)
 }
 Array.prototype.eq = function () {
     let a = this.pop();
@@ -209,6 +264,30 @@ Array.prototype.mod = function () {
     let b=  this.pop()
     if(a===undefined || b===undefined) throw new Error("not enough arguments for mod")
     return this.push(b % a )
+}
+Array.prototype.shl = function () {
+    let a = this.pop()
+    let b=  this.pop()
+    if(a===undefined || b===undefined) throw new Error("not enough arguments for shl")
+    return this.push(b >> a )
+};
+Array.prototype.shr = function () {
+    let a = this.pop()
+    let b=  this.pop()
+    if(a===undefined || b===undefined) throw new Error("not enough arguments for shr")
+    return this.push(b << a )
+}
+Array.prototype.or = function () {
+    let a = this.pop()
+    let b=  this.pop()
+    if(a===undefined || b===undefined) throw new Error("not enough arguments for or")
+    return this.push(b || a )
+};
+Array.prototype.and = function () {
+    let a = this.pop()
+    let b=  this.pop()
+    if(a===undefined || b===undefined) throw new Error("not enough arguments for and")
+    return this.push(b && a )
 }
 Array.prototype.over = function () {
     let a = this.pop()
@@ -236,6 +315,12 @@ Array.prototype.plus = function () {
     if(a===undefined || b===undefined) throw new Error("not enough arguments for plus")
     this.push(a+b)
 }
+Array.prototype.minus = function () {
+    let a = this.pop();
+    let b = this.pop();
+    if(a===undefined || b===undefined) throw new Error("not enough arguments for minus")
+    this.push(a-b)
+}
 Array.prototype.print = function () {
     let a =this.pop()
     if(a===undefined) throw new Error("not enough arguments for print")
@@ -250,8 +335,31 @@ Array.prototype.swap = function () {
     this.push(a)
     this.push(b)
 }
+Array.prototype.store8 = function () {
+    let a = this.pop()
+    let b = this.pop()
+    if (a === undefined || b===undefined) throw new Error("not enough arguments for store8 intrinsic")
+    memory[a] = b;
+}
+Array.prototype.load8 = function () {
+    let a = this.pop()
+    if (a === undefined ) throw new Error("not enough arguments for load8 intrinsic")
+    this.push(memory[a])
+}
     `
     return header + main;
+}
+function parseAndProcess(s: string): { ast: AST, context: Context } {
+    const maybeAST = parse(s)
+    if (maybeAST.type === "fail") {
+        throw new Error(maybeAST.value)
+    } else {
+        return getContext(maybeAST.value)
+        // fs.writeFileSync("./ast.json", JSON.stringify(ast, null, 4))
+        // const code = genCode(ast, context)
+        // return ast;
+        // fs.writeFileSync("./generated.js", code)
+    }
 }
 function main() {
     const prog = fs.readFileSync("src/example.porth", "utf-8")

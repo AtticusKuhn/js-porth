@@ -1,29 +1,1266 @@
 [
-    null,
-    null,
-    null,
     {
-        "type": "number_literal",
-        "value": 6,
+        "type": "comment",
+        "value": "/ Max width of the row",
         "start": {
-            "line": 4,
+            "line": 3,
             "col": 0
         },
         "end": {
-            "line": 4,
+            "line": 3,
+            "col": 23
+        }
+    },
+    {
+        "type": "comment",
+        "value": "/ Memory layout",
+        "start": {
+            "line": 6,
+            "col": 0
+        },
+        "end": {
+            "line": 6,
+            "col": 16
+        }
+    },
+    {
+        "type": "memory",
+        "name": "row",
+        "body": [
+            {
+                "type": "identifier",
+                "value": "N",
+                "start": {
+                    "line": 7,
+                    "col": 11
+                },
+                "end": {
+                    "line": 7,
+                    "col": 12
+                }
+            }
+        ]
+    },
+    {
+        "type": "memory",
+        "name": "display",
+        "body": [
+            {
+                "type": "identifier",
+                "value": "N",
+                "start": {
+                    "line": 8,
+                    "col": 15
+                },
+                "end": {
+                    "line": 8,
+                    "col": 16
+                }
+            },
+            {
+                "type": "number_literal",
+                "value": 1,
+                "start": {
+                    "line": 8,
+                    "col": 17
+                },
+                "end": {
+                    "line": 8,
+                    "col": 18
+                }
+            },
+            {
+                "type": "plus",
+                "value": "+",
+                "start": {
+                    "line": 8,
+                    "col": 19
+                },
+                "end": {
+                    "line": 8,
+                    "col": 20
+                }
+            }
+        ]
+    },
+    {
+        "type": "number_literal",
+        "value": 0,
+        "start": {
+            "line": 10,
+            "col": 0
+        },
+        "end": {
+            "line": 10,
+            "col": 3
+        }
+    },
+    {
+        "type": "number_literal",
+        "value": 100,
+        "start": {
+            "line": 10,
+            "col": 4
+        },
+        "end": {
+            "line": 10,
+            "col": 5
+        }
+    },
+    {
+        "type": "number_literal",
+        "value": 2,
+        "start": {
+            "line": 10,
+            "col": 6
+        },
+        "end": {
+            "line": 10,
+            "col": 7
+        }
+    },
+    {
+        "type": "minus",
+        "value": "-",
+        "start": {
+            "line": 10,
+            "col": 8
+        },
+        "end": {
+            "line": 10,
+            "col": 9
+        }
+    },
+    {
+        "type": "plus",
+        "value": "+",
+        "start": {
+            "line": 10,
+            "col": 10
+        },
+        "end": {
+            "line": 10,
+            "col": 11
+        }
+    },
+    {
+        "type": "number_literal",
+        "value": 1,
+        "start": {
+            "line": 10,
+            "col": 12
+        },
+        "end": {
+            "line": 10,
+            "col": 13
+        }
+    },
+    {
+        "type": "swap",
+        "value": "swap",
+        "start": {
+            "line": 10,
+            "col": 14
+        },
+        "end": {
+            "line": 10,
+            "col": 18
+        }
+    },
+    {
+        "type": "store8",
+        "value": "!8",
+        "start": {
+            "line": 10,
+            "col": 19
+        },
+        "end": {
+            "line": 10,
+            "col": 21
+        }
+    },
+    {
+        "type": "number_literal",
+        "value": 100,
+        "start": {
+            "line": 11,
+            "col": 0
+        },
+        "end": {
+            "line": 11,
+            "col": 7
+        }
+    },
+    {
+        "type": "number_literal",
+        "value": 100,
+        "start": {
+            "line": 11,
+            "col": 8
+        },
+        "end": {
+            "line": 11,
+            "col": 9
+        }
+    },
+    {
+        "type": "plus",
+        "value": "+",
+        "start": {
+            "line": 11,
+            "col": 10
+        },
+        "end": {
+            "line": 11,
+            "col": 11
+        }
+    },
+    {
+        "type": "number_literal",
+        "value": 10,
+        "start": {
+            "line": 11,
+            "col": 12
+        },
+        "end": {
+            "line": 11,
+            "col": 14
+        }
+    },
+    {
+        "type": "swap",
+        "value": "swap",
+        "start": {
+            "line": 11,
+            "col": 15
+        },
+        "end": {
+            "line": 11,
+            "col": 19
+        }
+    },
+    {
+        "type": "store8",
+        "value": "!8",
+        "start": {
+            "line": 11,
+            "col": 20
+        },
+        "end": {
+            "line": 11,
+            "col": 22
+        }
+    },
+    {
+        "type": "number_literal",
+        "value": 0,
+        "start": {
+            "line": 13,
+            "col": 0
+        },
+        "end": {
+            "line": 13,
             "col": 1
         }
     },
     {
-        "type": "print",
-        "value": "print",
+        "type": "while",
+        "condition": [
+            {
+                "type": "dup",
+                "value": "dup",
+                "start": {
+                    "line": 13,
+                    "col": 8
+                },
+                "end": {
+                    "line": 13,
+                    "col": 11
+                }
+            },
+            {
+                "type": "identifier",
+                "value": "N",
+                "start": {
+                    "line": 13,
+                    "col": 12
+                },
+                "end": {
+                    "line": 13,
+                    "col": 13
+                }
+            },
+            {
+                "type": "number_literal",
+                "value": 2,
+                "start": {
+                    "line": 13,
+                    "col": 14
+                },
+                "end": {
+                    "line": 13,
+                    "col": 15
+                }
+            },
+            {
+                "type": "minus",
+                "value": "-",
+                "start": {
+                    "line": 13,
+                    "col": 16
+                },
+                "end": {
+                    "line": 13,
+                    "col": 17
+                }
+            },
+            {
+                "type": "lt",
+                "value": "<",
+                "start": {
+                    "line": 13,
+                    "col": 18
+                },
+                "end": {
+                    "line": 13,
+                    "col": 19
+                }
+            }
+        ],
+        "body": [
+            {
+                "type": "number_literal",
+                "value": 0,
+                "start": {
+                    "line": 14,
+                    "col": 3
+                },
+                "end": {
+                    "line": 14,
+                    "col": 4
+                }
+            },
+            {
+                "type": "while",
+                "condition": [
+                    {
+                        "type": "dup",
+                        "value": "dup",
+                        "start": {
+                            "line": 14,
+                            "col": 11
+                        },
+                        "end": {
+                            "line": 14,
+                            "col": 14
+                        }
+                    },
+                    {
+                        "type": "identifier",
+                        "value": "N",
+                        "start": {
+                            "line": 14,
+                            "col": 15
+                        },
+                        "end": {
+                            "line": 14,
+                            "col": 16
+                        }
+                    },
+                    {
+                        "type": "lt",
+                        "value": "<",
+                        "start": {
+                            "line": 14,
+                            "col": 17
+                        },
+                        "end": {
+                            "line": 14,
+                            "col": 18
+                        }
+                    }
+                ],
+                "body": [
+                    {
+                        "type": "dup",
+                        "value": "dup",
+                        "start": {
+                            "line": 15,
+                            "col": 6
+                        },
+                        "end": {
+                            "line": 15,
+                            "col": 9
+                        }
+                    },
+                    {
+                        "type": "identifier",
+                        "value": "row",
+                        "start": {
+                            "line": 15,
+                            "col": 10
+                        },
+                        "end": {
+                            "line": 15,
+                            "col": 13
+                        }
+                    },
+                    {
+                        "type": "plus",
+                        "value": "+",
+                        "start": {
+                            "line": 15,
+                            "col": 14
+                        },
+                        "end": {
+                            "line": 15,
+                            "col": 15
+                        }
+                    },
+                    {
+                        "type": "load8",
+                        "value": "@8",
+                        "start": {
+                            "line": 15,
+                            "col": 16
+                        },
+                        "end": {
+                            "line": 15,
+                            "col": 18
+                        }
+                    },
+                    {
+                        "type": "number_literal",
+                        "value": 1,
+                        "start": {
+                            "line": 15,
+                            "col": 19
+                        },
+                        "end": {
+                            "line": 15,
+                            "col": 20
+                        }
+                    },
+                    {
+                        "type": "eq",
+                        "value": "=",
+                        "start": {
+                            "line": 15,
+                            "col": 21
+                        },
+                        "end": {
+                            "line": 15,
+                            "col": 22
+                        }
+                    },
+                    {
+                        "type": "ifElse",
+                        "body": [
+                            {
+                                "type": "dup",
+                                "value": "dup",
+                                "start": {
+                                    "line": 16,
+                                    "col": 9
+                                },
+                                "end": {
+                                    "line": 16,
+                                    "col": 12
+                                }
+                            },
+                            {
+                                "type": "identifier",
+                                "value": "display",
+                                "start": {
+                                    "line": 16,
+                                    "col": 13
+                                },
+                                "end": {
+                                    "line": 16,
+                                    "col": 20
+                                }
+                            },
+                            {
+                                "type": "plus",
+                                "value": "+",
+                                "start": {
+                                    "line": 16,
+                                    "col": 21
+                                },
+                                "end": {
+                                    "line": 16,
+                                    "col": 22
+                                }
+                            },
+                            {
+                                "type": "string_literal",
+                                "value": "*",
+                                "start": {
+                                    "line": 16,
+                                    "col": 23
+                                },
+                                "end": {
+                                    "line": 16,
+                                    "col": 26
+                                }
+                            },
+                            {
+                                "type": "swap",
+                                "value": "swap",
+                                "start": {
+                                    "line": 16,
+                                    "col": 27
+                                },
+                                "end": {
+                                    "line": 16,
+                                    "col": 31
+                                }
+                            },
+                            {
+                                "type": "store8",
+                                "value": "!8",
+                                "start": {
+                                    "line": 16,
+                                    "col": 32
+                                },
+                                "end": {
+                                    "line": 16,
+                                    "col": 34
+                                }
+                            }
+                        ],
+                        "elseBranch": [
+                            {
+                                "type": "dup",
+                                "value": "dup",
+                                "start": {
+                                    "line": 18,
+                                    "col": 9
+                                },
+                                "end": {
+                                    "line": 18,
+                                    "col": 12
+                                }
+                            },
+                            {
+                                "type": "identifier",
+                                "value": "display",
+                                "start": {
+                                    "line": 18,
+                                    "col": 13
+                                },
+                                "end": {
+                                    "line": 18,
+                                    "col": 20
+                                }
+                            },
+                            {
+                                "type": "plus",
+                                "value": "+",
+                                "start": {
+                                    "line": 18,
+                                    "col": 21
+                                },
+                                "end": {
+                                    "line": 18,
+                                    "col": 22
+                                }
+                            },
+                            {
+                                "type": "string_literal",
+                                "value": " ",
+                                "start": {
+                                    "line": 18,
+                                    "col": 23
+                                },
+                                "end": {
+                                    "line": 18,
+                                    "col": 26
+                                }
+                            },
+                            {
+                                "type": "swap",
+                                "value": "swap",
+                                "start": {
+                                    "line": 18,
+                                    "col": 27
+                                },
+                                "end": {
+                                    "line": 18,
+                                    "col": 31
+                                }
+                            },
+                            {
+                                "type": "store8",
+                                "value": "!8",
+                                "start": {
+                                    "line": 18,
+                                    "col": 32
+                                },
+                                "end": {
+                                    "line": 18,
+                                    "col": 34
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "type": "number_literal",
+                        "value": 1,
+                        "start": {
+                            "line": 20,
+                            "col": 6
+                        },
+                        "end": {
+                            "line": 20,
+                            "col": 7
+                        }
+                    },
+                    {
+                        "type": "plus",
+                        "value": "+",
+                        "start": {
+                            "line": 20,
+                            "col": 8
+                        },
+                        "end": {
+                            "line": 20,
+                            "col": 9
+                        }
+                    }
+                ]
+            },
+            {
+                "type": "drop",
+                "value": "drop",
+                "start": {
+                    "line": 21,
+                    "col": 7
+                },
+                "end": {
+                    "line": 21,
+                    "col": 11
+                }
+            },
+            {
+                "type": "identifier",
+                "value": "N",
+                "start": {
+                    "line": 23,
+                    "col": 3
+                },
+                "end": {
+                    "line": 23,
+                    "col": 4
+                }
+            },
+            {
+                "type": "number_literal",
+                "value": 1,
+                "start": {
+                    "line": 23,
+                    "col": 5
+                },
+                "end": {
+                    "line": 23,
+                    "col": 6
+                }
+            },
+            {
+                "type": "plus",
+                "value": "+",
+                "start": {
+                    "line": 23,
+                    "col": 7
+                },
+                "end": {
+                    "line": 23,
+                    "col": 8
+                }
+            },
+            {
+                "type": "identifier",
+                "value": "display",
+                "start": {
+                    "line": 23,
+                    "col": 9
+                },
+                "end": {
+                    "line": 23,
+                    "col": 16
+                }
+            },
+            {
+                "type": "print",
+                "value": "print",
+                "start": {
+                    "line": 23,
+                    "col": 17
+                },
+                "end": {
+                    "line": 23,
+                    "col": 22
+                }
+            },
+            {
+                "type": "identifier",
+                "value": "row",
+                "start": {
+                    "line": 25,
+                    "col": 3
+                },
+                "end": {
+                    "line": 25,
+                    "col": 6
+                }
+            },
+            {
+                "type": "load8",
+                "value": "@8",
+                "start": {
+                    "line": 25,
+                    "col": 11
+                },
+                "end": {
+                    "line": 25,
+                    "col": 13
+                }
+            },
+            {
+                "type": "number_literal",
+                "value": 1,
+                "start": {
+                    "line": 25,
+                    "col": 14
+                },
+                "end": {
+                    "line": 25,
+                    "col": 15
+                }
+            },
+            {
+                "type": "shl",
+                "value": "shl",
+                "start": {
+                    "line": 25,
+                    "col": 16
+                },
+                "end": {
+                    "line": 25,
+                    "col": 19
+                }
+            },
+            {
+                "type": "identifier",
+                "value": "row",
+                "start": {
+                    "line": 26,
+                    "col": 3
+                },
+                "end": {
+                    "line": 26,
+                    "col": 6
+                }
+            },
+            {
+                "type": "number_literal",
+                "value": 1,
+                "start": {
+                    "line": 26,
+                    "col": 7
+                },
+                "end": {
+                    "line": 26,
+                    "col": 8
+                }
+            },
+            {
+                "type": "plus",
+                "value": "+",
+                "start": {
+                    "line": 26,
+                    "col": 9
+                },
+                "end": {
+                    "line": 26,
+                    "col": 10
+                }
+            },
+            {
+                "type": "load8",
+                "value": "@8",
+                "start": {
+                    "line": 26,
+                    "col": 11
+                },
+                "end": {
+                    "line": 26,
+                    "col": 13
+                }
+            },
+            {
+                "type": "or",
+                "value": "or",
+                "start": {
+                    "line": 27,
+                    "col": 3
+                },
+                "end": {
+                    "line": 27,
+                    "col": 5
+                }
+            },
+            {
+                "type": "number_literal",
+                "value": 1,
+                "start": {
+                    "line": 29,
+                    "col": 3
+                },
+                "end": {
+                    "line": 29,
+                    "col": 4
+                }
+            },
+            {
+                "type": "while",
+                "condition": [
+                    {
+                        "type": "dup",
+                        "value": "dup",
+                        "start": {
+                            "line": 29,
+                            "col": 11
+                        },
+                        "end": {
+                            "line": 29,
+                            "col": 14
+                        }
+                    },
+                    {
+                        "type": "identifier",
+                        "value": "N",
+                        "start": {
+                            "line": 29,
+                            "col": 15
+                        },
+                        "end": {
+                            "line": 29,
+                            "col": 16
+                        }
+                    },
+                    {
+                        "type": "number_literal",
+                        "value": 2,
+                        "start": {
+                            "line": 29,
+                            "col": 17
+                        },
+                        "end": {
+                            "line": 29,
+                            "col": 18
+                        }
+                    },
+                    {
+                        "type": "minus",
+                        "value": "-",
+                        "start": {
+                            "line": 29,
+                            "col": 19
+                        },
+                        "end": {
+                            "line": 29,
+                            "col": 20
+                        }
+                    },
+                    {
+                        "type": "lt",
+                        "value": "<",
+                        "start": {
+                            "line": 29,
+                            "col": 21
+                        },
+                        "end": {
+                            "line": 29,
+                            "col": 22
+                        }
+                    }
+                ],
+                "body": [
+                    {
+                        "type": "swap",
+                        "value": "swap",
+                        "start": {
+                            "line": 30,
+                            "col": 6
+                        },
+                        "end": {
+                            "line": 30,
+                            "col": 10
+                        }
+                    },
+                    {
+                        "type": "number_literal",
+                        "value": 1,
+                        "start": {
+                            "line": 30,
+                            "col": 11
+                        },
+                        "end": {
+                            "line": 30,
+                            "col": 12
+                        }
+                    },
+                    {
+                        "type": "shl",
+                        "value": "shl",
+                        "start": {
+                            "line": 30,
+                            "col": 13
+                        },
+                        "end": {
+                            "line": 30,
+                            "col": 16
+                        }
+                    },
+                    {
+                        "type": "number_literal",
+                        "value": 7,
+                        "start": {
+                            "line": 30,
+                            "col": 17
+                        },
+                        "end": {
+                            "line": 30,
+                            "col": 18
+                        }
+                    },
+                    {
+                        "type": "and",
+                        "value": "and",
+                        "start": {
+                            "line": 30,
+                            "col": 19
+                        },
+                        "end": {
+                            "line": 30,
+                            "col": 22
+                        }
+                    },
+                    {
+                        "type": "over",
+                        "value": "over",
+                        "start": {
+                            "line": 31,
+                            "col": 6
+                        },
+                        "end": {
+                            "line": 31,
+                            "col": 10
+                        }
+                    },
+                    {
+                        "type": "identifier",
+                        "value": "row",
+                        "start": {
+                            "line": 31,
+                            "col": 11
+                        },
+                        "end": {
+                            "line": 31,
+                            "col": 14
+                        }
+                    },
+                    {
+                        "type": "plus",
+                        "value": "+",
+                        "start": {
+                            "line": 31,
+                            "col": 15
+                        },
+                        "end": {
+                            "line": 31,
+                            "col": 16
+                        }
+                    },
+                    {
+                        "type": "number_literal",
+                        "value": 1,
+                        "start": {
+                            "line": 31,
+                            "col": 17
+                        },
+                        "end": {
+                            "line": 31,
+                            "col": 18
+                        }
+                    },
+                    {
+                        "type": "plus",
+                        "value": "+",
+                        "start": {
+                            "line": 31,
+                            "col": 19
+                        },
+                        "end": {
+                            "line": 31,
+                            "col": 20
+                        }
+                    },
+                    {
+                        "type": "load8",
+                        "value": "@8",
+                        "start": {
+                            "line": 31,
+                            "col": 21
+                        },
+                        "end": {
+                            "line": 31,
+                            "col": 23
+                        }
+                    },
+                    {
+                        "type": "or",
+                        "value": "or",
+                        "start": {
+                            "line": 31,
+                            "col": 24
+                        },
+                        "end": {
+                            "line": 31,
+                            "col": 26
+                        }
+                    },
+                    {
+                        "type": "dup",
+                        "value": "dup",
+                        "start": {
+                            "line": 32,
+                            "col": 6
+                        },
+                        "end": {
+                            "line": 32,
+                            "col": 9
+                        }
+                    },
+                    {
+                        "type": "dup",
+                        "value": "dup",
+                        "start": {
+                            "line": 32,
+                            "col": 10
+                        },
+                        "end": {
+                            "line": 32,
+                            "col": 13
+                        }
+                    },
+                    {
+                        "type": "number_literal",
+                        "value": 110,
+                        "start": {
+                            "line": 32,
+                            "col": 14
+                        },
+                        "end": {
+                            "line": 32,
+                            "col": 17
+                        }
+                    },
+                    {
+                        "type": "swap",
+                        "value": "swap",
+                        "start": {
+                            "line": 32,
+                            "col": 18
+                        },
+                        "end": {
+                            "line": 32,
+                            "col": 22
+                        }
+                    },
+                    {
+                        "type": "shr",
+                        "value": "shr",
+                        "start": {
+                            "line": 32,
+                            "col": 23
+                        },
+                        "end": {
+                            "line": 32,
+                            "col": 26
+                        }
+                    },
+                    {
+                        "type": "number_literal",
+                        "value": 1,
+                        "start": {
+                            "line": 32,
+                            "col": 27
+                        },
+                        "end": {
+                            "line": 32,
+                            "col": 28
+                        }
+                    },
+                    {
+                        "type": "and",
+                        "value": "and",
+                        "start": {
+                            "line": 32,
+                            "col": 29
+                        },
+                        "end": {
+                            "line": 32,
+                            "col": 32
+                        }
+                    },
+                    {
+                        "type": "swap",
+                        "value": "swap",
+                        "start": {
+                            "line": 33,
+                            "col": 6
+                        },
+                        "end": {
+                            "line": 33,
+                            "col": 10
+                        }
+                    },
+                    {
+                        "type": "identifier",
+                        "value": "row",
+                        "start": {
+                            "line": 33,
+                            "col": 11
+                        },
+                        "end": {
+                            "line": 33,
+                            "col": 14
+                        }
+                    },
+                    {
+                        "type": "plus",
+                        "value": "+",
+                        "start": {
+                            "line": 33,
+                            "col": 15
+                        },
+                        "end": {
+                            "line": 33,
+                            "col": 16
+                        }
+                    },
+                    {
+                        "type": "store8",
+                        "value": "!8",
+                        "start": {
+                            "line": 33,
+                            "col": 17
+                        },
+                        "end": {
+                            "line": 33,
+                            "col": 19
+                        }
+                    },
+                    {
+                        "type": "swap",
+                        "value": "swap",
+                        "start": {
+                            "line": 34,
+                            "col": 6
+                        },
+                        "end": {
+                            "line": 34,
+                            "col": 10
+                        }
+                    },
+                    {
+                        "type": "number_literal",
+                        "value": 1,
+                        "start": {
+                            "line": 36,
+                            "col": 6
+                        },
+                        "end": {
+                            "line": 36,
+                            "col": 7
+                        }
+                    },
+                    {
+                        "type": "plus",
+                        "value": "+",
+                        "start": {
+                            "line": 36,
+                            "col": 8
+                        },
+                        "end": {
+                            "line": 36,
+                            "col": 9
+                        }
+                    }
+                ]
+            },
+            {
+                "type": "drop",
+                "value": "drop",
+                "start": {
+                    "line": 37,
+                    "col": 7
+                },
+                "end": {
+                    "line": 37,
+                    "col": 11
+                }
+            },
+            {
+                "type": "drop",
+                "value": "drop",
+                "start": {
+                    "line": 37,
+                    "col": 12
+                },
+                "end": {
+                    "line": 37,
+                    "col": 16
+                }
+            },
+            {
+                "type": "number_literal",
+                "value": 1,
+                "start": {
+                    "line": 39,
+                    "col": 3
+                },
+                "end": {
+                    "line": 39,
+                    "col": 4
+                }
+            },
+            {
+                "type": "plus",
+                "value": "+",
+                "start": {
+                    "line": 39,
+                    "col": 5
+                },
+                "end": {
+                    "line": 39,
+                    "col": 6
+                }
+            }
+        ]
+    },
+    {
+        "type": "drop",
+        "value": "drop",
         "start": {
-            "line": 4,
-            "col": 2
+            "line": 40,
+            "col": 4
         },
         "end": {
-            "line": 4,
-            "col": 7
+            "line": 40,
+            "col": 8
         }
     }
 ]

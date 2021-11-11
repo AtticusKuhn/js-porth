@@ -22,7 +22,7 @@ export const lexer = moo.compile({
     // modulo: "%",
     // colon: ":",
     comment: {
-        match: /#[^\n]*/,
+        match: /\/\/[^\n]*/,
         value: s => s.substring(1)
     },
     string_literal: {
@@ -35,7 +35,7 @@ export const lexer = moo.compile({
         value: s => Number(s)
     },
     intrinsic: {
-        match: /\+|\-|\*|divmod|max|print|over|swap|dup|mod|drop|\=|\>|\</,
+        match: /\+|\-|\*|divmod|max|print|over|swap|dup|mod|drop|!8|@8|shl|shr|or|and|\=|\>|\</,
         type: moo.keywords({
             plus: "+",
             minus: "-",
@@ -51,10 +51,16 @@ export const lexer = moo.compile({
             swap: "swap",
             dup: "dup",
             drop: "drop",
+            store8: "!8",
+            load8: "@8",
+            shl: "shl",
+            shr: "shr",
+            or: "or",
+            and: "and"
         })
     },
     identifier: {
-        match: /[A-Za-z_][a-zA-Z_0-9]*/,
+        match: /[^\s \t]+/,
         type: moo.keywords({
             ifStatement: "if",
             elseStatement: "else",

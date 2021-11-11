@@ -36,7 +36,7 @@ function convertTokenId(data) {
 
 @lexer lexer
 
-program -> _ml statements _ml {% d=>d[1] %}
+program -> __ml statements __ml {% d=>d[1] %}
 statements -> statement _ml statements {%(d)=>[d[0], ...d[2]]%}
     | statement {%(d)=>d%}
 statement ->  number  {%id%}
@@ -44,11 +44,13 @@ statement ->  number  {%id%}
     | identifier {%id%}
     | macro {%id%}
     | proc {%id%}
+    | memory {%id%}
     | constStatement {%id%}
     | include {%id%}
     | conditional {%id%}
     | whileStatement {%id%}
     | string_literal {%id%}
+    | line_comment {%id%}
 
 
 whileStatement -> %whileStatement _ml statements _ml %doStatement _ml statements _ml %end  {%d=>({
@@ -56,7 +58,7 @@ whileStatement -> %whileStatement _ml statements _ml %doStatement _ml statements
    condition: d[2],
    body: d[6],
 })%}
-conditional -> ifElse {%id%}  | ifStatement {%id%}
+conditional ->ifStatement {%id%} | ifElse {%id%} 
 ifElse -> 
      %ifStatement  _ml statements _ml %elseStatement _ml statements _ml  %end {%d=>({
         type:"ifElse",
@@ -78,6 +80,11 @@ ifStatement ->   %ifStatement  _ml statements _ml %end  {%d=>({
 
 macro -> %macro _ml identifier _ml  statements _ml %end {%d=>({
     type:"macro",
+    name:d[2].value,
+    body:d[4]
+})%}
+memory -> %memory _ml identifier _ml  statements _ml %end {%d=>({
+    type:"memory",
     name:d[2].value,
     body:d[4]
 })%}
@@ -116,10 +123,18 @@ intrinsic -> %plus {% convertTokenId %}
     | %swap {% convertTokenId %} 
     | %dup {% convertTokenId %} 
     | %drop {% convertTokenId %} 
+    | %store8 {% convertTokenId %} 
+    | %load8 {% convertTokenId %}
+    | %shl {% convertTokenId %} 
+    | %shr {% convertTokenId %} 
+    | %or {% convertTokenId %} 
+    | %and {% convertTokenId %} 
+
 
 identifier -> %identifier {% convertTokenId %}
 
-_ml -> multi_line_ws_char:*
+__ml -> multi_line_ws_char:*
+_ml -> multi_line_ws_char:+
 
 multi_line_ws_char
     -> %ws
