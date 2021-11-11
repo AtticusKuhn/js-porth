@@ -46,19 +46,36 @@ statement ->  number  {%id%}
     | proc {%id%}
     | constStatement {%id%}
     | include {%id%}
-    | ifStatement {%id%}
+    | conditional {%id%}
     | whileStatement {%id%}
+    | string_literal {%id%}
+
 
 whileStatement -> %whileStatement _ml statements _ml %doStatement _ml statements _ml %end  {%d=>({
    type:"while",
    condition: d[2],
    body: d[6],
 })%}
-ifStatement -> %ifStatement _ml statements  _ml %doStatement  _ml statements _ml %end  {%d=>({
+conditional -> ifElse {%id%}  | ifStatement {%id%}
+ifElse -> 
+     %ifStatement  _ml statements _ml %elseStatement _ml statements _ml  %end {%d=>({
+        type:"ifElse",
+        // condition:d[0],
+        body:d[2],
+        elseBranch:d[6]
+    })%}
+    |  %ifStatement  _ml statements _ml %elseStatement _ml statements _ml conditional {%d=>({
+        type:"ifElse",
+        elseCondition: d[6],
+        body:d[2],
+        elseBranch:[d[8]]
+    })%}
+ifStatement ->   %ifStatement  _ml statements _ml %end  {%d=>({
     type:"if",
-    condition: d[2],
-    body: d[6],
+   // condition: d[0],
+    body: d[2],
 })%}
+
 macro -> %macro _ml identifier _ml  statements _ml %end {%d=>({
     type:"macro",
     name:d[2].value,
@@ -90,6 +107,7 @@ intrinsic -> %plus {% convertTokenId %}
     |   %minus {% convertTokenId %}
     |       %timed {% convertTokenId %}
     |      %divmod {% convertTokenId %}
+    |      %mod {% convertTokenId %}
     |     %max {% convertTokenId %}
     |   %eq {% convertTokenId %}
     |  %gt {% convertTokenId %}
@@ -97,6 +115,7 @@ intrinsic -> %plus {% convertTokenId %}
     | %over {% convertTokenId %} 
     | %swap {% convertTokenId %} 
     | %dup {% convertTokenId %} 
+    | %drop {% convertTokenId %} 
 
 identifier -> %identifier {% convertTokenId %}
 
@@ -106,6 +125,7 @@ multi_line_ws_char
     -> %ws
     |  "\n"
     | "\t"
+    # | %nl
 
 __ -> %ws:+
 

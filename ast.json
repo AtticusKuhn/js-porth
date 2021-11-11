@@ -53,53 +53,366 @@
         ],
         "body": [
             {
-                "type": "dup",
-                "value": "dup",
+                "type": "string_literal",
+                "value": "loop",
                 "start": {
-                    "line": 1,
-                    "col": 21
+                    "line": 2,
+                    "col": 1
                 },
                 "end": {
-                    "line": 1,
-                    "col": 24
+                    "line": 2,
+                    "col": 7
                 }
             },
             {
                 "type": "print",
                 "value": "print",
                 "start": {
-                    "line": 1,
-                    "col": 25
+                    "line": 2,
+                    "col": 8
                 },
                 "end": {
-                    "line": 1,
-                    "col": 30
+                    "line": 2,
+                    "col": 13
                 }
+            },
+            {
+                "type": "dup",
+                "value": "dup",
+                "start": {
+                    "line": 3,
+                    "col": 2
+                },
+                "end": {
+                    "line": 3,
+                    "col": 5
+                }
+            },
+            {
+                "type": "number_literal",
+                "value": 15,
+                "start": {
+                    "line": 3,
+                    "col": 6
+                },
+                "end": {
+                    "line": 3,
+                    "col": 8
+                }
+            },
+            {
+                "type": "mod",
+                "value": "mod",
+                "start": {
+                    "line": 3,
+                    "col": 9
+                },
+                "end": {
+                    "line": 3,
+                    "col": 12
+                }
+            },
+            {
+                "type": "number_literal",
+                "value": 0,
+                "start": {
+                    "line": 3,
+                    "col": 13
+                },
+                "end": {
+                    "line": 3,
+                    "col": 14
+                }
+            },
+            {
+                "type": "eq",
+                "value": "=",
+                "start": {
+                    "line": 3,
+                    "col": 15
+                },
+                "end": {
+                    "line": 3,
+                    "col": 16
+                }
+            },
+            {
+                "type": "ifElse",
+                "elseCondition": [
+                    {
+                        "type": "dup",
+                        "value": "dup",
+                        "start": {
+                            "line": 5,
+                            "col": 7
+                        },
+                        "end": {
+                            "line": 5,
+                            "col": 10
+                        }
+                    },
+                    {
+                        "type": "number_literal",
+                        "value": 3,
+                        "start": {
+                            "line": 5,
+                            "col": 11
+                        },
+                        "end": {
+                            "line": 5,
+                            "col": 12
+                        }
+                    },
+                    {
+                        "type": "mod",
+                        "value": "mod",
+                        "start": {
+                            "line": 5,
+                            "col": 13
+                        },
+                        "end": {
+                            "line": 5,
+                            "col": 16
+                        }
+                    },
+                    {
+                        "type": "number_literal",
+                        "value": 0,
+                        "start": {
+                            "line": 5,
+                            "col": 17
+                        },
+                        "end": {
+                            "line": 5,
+                            "col": 18
+                        }
+                    },
+                    {
+                        "type": "eq",
+                        "value": "=",
+                        "start": {
+                            "line": 5,
+                            "col": 19
+                        },
+                        "end": {
+                            "line": 5,
+                            "col": 20
+                        }
+                    }
+                ],
+                "body": [
+                    {
+                        "type": "string_literal",
+                        "value": "FizzBuzz\n",
+                        "start": {
+                            "line": 4,
+                            "col": 4
+                        },
+                        "end": {
+                            "line": 4,
+                            "col": 16
+                        }
+                    },
+                    {
+                        "type": "identifier",
+                        "value": "puts",
+                        "start": {
+                            "line": 4,
+                            "col": 17
+                        },
+                        "end": {
+                            "line": 4,
+                            "col": 21
+                        }
+                    }
+                ],
+                "elseBranch": [
+                    {
+                        "type": "ifElse",
+                        "elseCondition": [
+                            {
+                                "type": "dup",
+                                "value": "dup",
+                                "start": {
+                                    "line": 7,
+                                    "col": 7
+                                },
+                                "end": {
+                                    "line": 7,
+                                    "col": 10
+                                }
+                            },
+                            {
+                                "type": "number_literal",
+                                "value": 5,
+                                "start": {
+                                    "line": 7,
+                                    "col": 11
+                                },
+                                "end": {
+                                    "line": 7,
+                                    "col": 12
+                                }
+                            },
+                            {
+                                "type": "mod",
+                                "value": "mod",
+                                "start": {
+                                    "line": 7,
+                                    "col": 13
+                                },
+                                "end": {
+                                    "line": 7,
+                                    "col": 16
+                                }
+                            },
+                            {
+                                "type": "number_literal",
+                                "value": 0,
+                                "start": {
+                                    "line": 7,
+                                    "col": 17
+                                },
+                                "end": {
+                                    "line": 7,
+                                    "col": 18
+                                }
+                            },
+                            {
+                                "type": "eq",
+                                "value": "=",
+                                "start": {
+                                    "line": 7,
+                                    "col": 19
+                                },
+                                "end": {
+                                    "line": 7,
+                                    "col": 20
+                                }
+                            }
+                        ],
+                        "body": [
+                            {
+                                "type": "string_literal",
+                                "value": "Fizz\n",
+                                "start": {
+                                    "line": 6,
+                                    "col": 4
+                                },
+                                "end": {
+                                    "line": 6,
+                                    "col": 12
+                                }
+                            },
+                            {
+                                "type": "identifier",
+                                "value": "puts",
+                                "start": {
+                                    "line": 6,
+                                    "col": 13
+                                },
+                                "end": {
+                                    "line": 6,
+                                    "col": 17
+                                }
+                            }
+                        ],
+                        "elseBranch": [
+                            {
+                                "type": "ifElse",
+                                "body": [
+                                    {
+                                        "type": "string_literal",
+                                        "value": "Buzz\n",
+                                        "start": {
+                                            "line": 8,
+                                            "col": 4
+                                        },
+                                        "end": {
+                                            "line": 8,
+                                            "col": 12
+                                        }
+                                    },
+                                    {
+                                        "type": "identifier",
+                                        "value": "puts",
+                                        "start": {
+                                            "line": 8,
+                                            "col": 13
+                                        },
+                                        "end": {
+                                            "line": 8,
+                                            "col": 17
+                                        }
+                                    }
+                                ],
+                                "elseBranch": [
+                                    {
+                                        "type": "dup",
+                                        "value": "dup",
+                                        "start": {
+                                            "line": 10,
+                                            "col": 4
+                                        },
+                                        "end": {
+                                            "line": 10,
+                                            "col": 7
+                                        }
+                                    },
+                                    {
+                                        "type": "print",
+                                        "value": "print",
+                                        "start": {
+                                            "line": 10,
+                                            "col": 8
+                                        },
+                                        "end": {
+                                            "line": 10,
+                                            "col": 13
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
             },
             {
                 "type": "number_literal",
                 "value": 1,
                 "start": {
-                    "line": 1,
-                    "col": 31
+                    "line": 12,
+                    "col": 2
                 },
                 "end": {
-                    "line": 1,
-                    "col": 32
+                    "line": 12,
+                    "col": 3
                 }
             },
             {
                 "type": "plus",
                 "value": "+",
                 "start": {
-                    "line": 1,
-                    "col": 33
+                    "line": 12,
+                    "col": 4
                 },
                 "end": {
-                    "line": 1,
-                    "col": 34
+                    "line": 12,
+                    "col": 5
                 }
             }
         ]
+    },
+    {
+        "type": "drop",
+        "value": "drop",
+        "start": {
+            "line": 13,
+            "col": 4
+        },
+        "end": {
+            "line": 13,
+            "col": 8
+        }
     }
 ]

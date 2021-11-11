@@ -1,7 +1,7 @@
 import moo from "moo"
 export const lexer = moo.compile({
     ws: /[ \t]+/,
-    nl: { match: "\n", lineBreaks: true },
+    nl: { match: /[\n\s]/, lineBreaks: true },
     // lte: "<=",
     // lt: "<",
     // gte: ">=",
@@ -35,13 +35,14 @@ export const lexer = moo.compile({
         value: s => Number(s)
     },
     intrinsic: {
-        match: /\+|\-|\*|divmod|max|print|over|swap|dup|\=|\>|\</,
+        match: /\+|\-|\*|divmod|max|print|over|swap|dup|mod|drop|\=|\>|\</,
         type: moo.keywords({
             plus: "+",
             minus: "-",
             times: "*",
             divmod: "divmod",
             max: "max",
+            mod: "mod",
             print: "print",
             eq: "=",
             gt: ">",
@@ -49,7 +50,7 @@ export const lexer = moo.compile({
             over: "over",
             swap: "swap",
             dup: "dup",
-
+            drop: "drop",
         })
     },
     identifier: {

@@ -49,17 +49,32 @@ var grammar = {
     {"name": "statement", "symbols": ["proc"], "postprocess": id},
     {"name": "statement", "symbols": ["constStatement"], "postprocess": id},
     {"name": "statement", "symbols": ["include"], "postprocess": id},
-    {"name": "statement", "symbols": ["ifStatement"], "postprocess": id},
+    {"name": "statement", "symbols": ["conditional"], "postprocess": id},
     {"name": "statement", "symbols": ["whileStatement"], "postprocess": id},
+    {"name": "statement", "symbols": ["string_literal"], "postprocess": id},
     {"name": "whileStatement", "symbols": [(lexer.has("whileStatement") ? {type: "whileStatement"} : whileStatement), "_ml", "statements", "_ml", (lexer.has("doStatement") ? {type: "doStatement"} : doStatement), "_ml", "statements", "_ml", (lexer.has("end") ? {type: "end"} : end)], "postprocess": d=>({
            type:"while",
            condition: d[2],
            body: d[6],
         })},
-    {"name": "ifStatement", "symbols": [(lexer.has("ifStatement") ? {type: "ifStatement"} : ifStatement), "_ml", "statements", "_ml", (lexer.has("doStatement") ? {type: "doStatement"} : doStatement), "_ml", "statements", "_ml", (lexer.has("end") ? {type: "end"} : end)], "postprocess": d=>({
+    {"name": "conditional", "symbols": ["ifElse"], "postprocess": id},
+    {"name": "conditional", "symbols": ["ifStatement"], "postprocess": id},
+    {"name": "ifElse", "symbols": [(lexer.has("ifStatement") ? {type: "ifStatement"} : ifStatement), "_ml", "statements", "_ml", (lexer.has("elseStatement") ? {type: "elseStatement"} : elseStatement), "_ml", "statements", "_ml", (lexer.has("end") ? {type: "end"} : end)], "postprocess": d=>({
+            type:"ifElse",
+            // condition:d[0],
+            body:d[2],
+            elseBranch:d[6]
+        })},
+    {"name": "ifElse", "symbols": [(lexer.has("ifStatement") ? {type: "ifStatement"} : ifStatement), "_ml", "statements", "_ml", (lexer.has("elseStatement") ? {type: "elseStatement"} : elseStatement), "_ml", "statements", "_ml", "conditional"], "postprocess": d=>({
+            type:"ifElse",
+            elseCondition: d[6],
+            body:d[2],
+            elseBranch:[d[8]]
+        })},
+    {"name": "ifStatement", "symbols": [(lexer.has("ifStatement") ? {type: "ifStatement"} : ifStatement), "_ml", "statements", "_ml", (lexer.has("end") ? {type: "end"} : end)], "postprocess": d=>({
             type:"if",
-            condition: d[2],
-            body: d[6],
+           // condition: d[0],
+            body: d[2],
         })},
     {"name": "macro", "symbols": [(lexer.has("macro") ? {type: "macro"} : macro), "_ml", "identifier", "_ml", "statements", "_ml", (lexer.has("end") ? {type: "end"} : end)], "postprocess": d=>({
             type:"macro",
@@ -88,6 +103,7 @@ var grammar = {
     {"name": "intrinsic", "symbols": [(lexer.has("minus") ? {type: "minus"} : minus)], "postprocess": convertTokenId},
     {"name": "intrinsic", "symbols": [(lexer.has("timed") ? {type: "timed"} : timed)], "postprocess": convertTokenId},
     {"name": "intrinsic", "symbols": [(lexer.has("divmod") ? {type: "divmod"} : divmod)], "postprocess": convertTokenId},
+    {"name": "intrinsic", "symbols": [(lexer.has("mod") ? {type: "mod"} : mod)], "postprocess": convertTokenId},
     {"name": "intrinsic", "symbols": [(lexer.has("max") ? {type: "max"} : max)], "postprocess": convertTokenId},
     {"name": "intrinsic", "symbols": [(lexer.has("eq") ? {type: "eq"} : eq)], "postprocess": convertTokenId},
     {"name": "intrinsic", "symbols": [(lexer.has("gt") ? {type: "gt"} : gt)], "postprocess": convertTokenId},
@@ -95,6 +111,7 @@ var grammar = {
     {"name": "intrinsic", "symbols": [(lexer.has("over") ? {type: "over"} : over)], "postprocess": convertTokenId},
     {"name": "intrinsic", "symbols": [(lexer.has("swap") ? {type: "swap"} : swap)], "postprocess": convertTokenId},
     {"name": "intrinsic", "symbols": [(lexer.has("dup") ? {type: "dup"} : dup)], "postprocess": convertTokenId},
+    {"name": "intrinsic", "symbols": [(lexer.has("drop") ? {type: "drop"} : drop)], "postprocess": convertTokenId},
     {"name": "identifier", "symbols": [(lexer.has("identifier") ? {type: "identifier"} : identifier)], "postprocess": convertTokenId},
     {"name": "_ml$ebnf$1", "symbols": []},
     {"name": "_ml$ebnf$1", "symbols": ["_ml$ebnf$1", "multi_line_ws_char"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
