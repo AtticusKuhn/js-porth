@@ -50,28 +50,23 @@ Array.prototype.swap = function () {
 while (
     ((stack) => { stack.dup();
 stack.push(100);
-stack.lt(); ; return stack.pop() })(stack)) { stack.push("loop");
-stack.print();
-stack.dup();
+stack.lt(); ; return stack.pop() })(stack)) { stack.dup();
 stack.push(15);
 stack.mod();
 stack.push(0);
 stack.eq();
-if(stack.pop()){stack.push("FizzBuzz\n");
-//identifier puts 
-}else{ stack.dup();
+if(stack.pop()){stack.push("FizzBuzz");
+stack.print()}else{ stack.dup();
 stack.push(3);
 stack.mod();
 stack.push(0);
-stack.eq(); if(stack.pop()){stack.push("Fizz\n");
-//identifier puts 
-}else{ stack.dup();
+stack.eq(); if(stack.pop()){stack.push("Fizz");
+stack.print()}else{ stack.dup();
 stack.push(5);
 stack.mod();
 stack.push(0);
-stack.eq(); if(stack.pop()){stack.push("Buzz\n");
-//identifier puts 
-}else{ ; stack.dup();
+stack.eq(); if(stack.pop()){stack.push("Buzz");
+stack.print()}else{ ; stack.dup();
 stack.print()}}};
 stack.push(1);
 stack.plus() } ;

@@ -1,11 +1,10 @@
 1 while dup 100 < do
- "loop" print
   dup 15 mod 0 = if
-    "FizzBuzz\n" puts
+    "FizzBuzz" print
   else dup 3 mod 0 = if
-    "Fizz\n" puts
+    "Fizz" print
   else dup 5 mod 0 = if
-    "Buzz\n" puts
+    "Buzz" print
   else 
     dup print
   end
