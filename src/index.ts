@@ -1,6 +1,6 @@
 import nearley from "nearley"
 // import lexer from "./lexer";
-import fs from "fs"
+// import fs from "fs"
 //@ts-ignore
 const grammar = require("../grammar.js")
 // Create a Parser object from our grammar.
@@ -59,7 +59,8 @@ function parse(code: string): either<string, AST> {
     parser.feed(code);
     if (parser.results.length > 1) {
         for (let i = 0; i < parser.results.length; i++) {
-            fs.writeFileSync(`./debug/${i}.json`, JSON.stringify(parser.results[i], null, 4))
+            console.log("ambiguous parser")
+            // fs.writeFileSync(`./debug/${i}.json`, JSON.stringify(parser.results[i], null, 4))
         }
         return left("ambiguous parser")
     }
@@ -76,8 +77,8 @@ type Context = {
     memorySize: number;
 }
 // type constVal = string | number;
-const getContext = (ast: AST): { ast: AST, context: Context } => {
-    const ctx: Context = {
+const getContext = async (ast: AST): Promise<{ ast: AST, context: Context }> => {
+    let ctx: Context = {
         procs: {},
         consts: {},
         memories: {},
@@ -118,9 +119,12 @@ const getContext = (ast: AST): { ast: AST, context: Context } => {
             l--;
         }
         if (node.type === "include") {
-            const file = parseAndProcess(fs.readFileSync(node.file.value, "utf-8"))
+            let req = await fetch(node.file.value)
+            const text = await req.text()
+            console.log("text is", text)
+            const file = await parseAndProcess(text)//fs.readFileSync(node.file.value, "utf-8"))
             ast.splice(i, 1);
-            // Object.assign(ctx, file.context)
+            ctx = { ...file.context, ...ctx }
             ast.splice(i, 0, ...file.ast)
             l += file.ast.length - 1
         }
@@ -349,28 +353,44 @@ Array.prototype.load8 = function () {
     `
     return header + main;
 }
-function parseAndProcess(s: string): { ast: AST, context: Context } {
+async function parseAndProcess(s: string): Promise<{ ast: AST, context: Context }> {
     const maybeAST = parse(s)
     if (maybeAST.type === "fail") {
         throw new Error(maybeAST.value)
     } else {
-        return getContext(maybeAST.value)
+        return await getContext(maybeAST.value)
         // fs.writeFileSync("./ast.json", JSON.stringify(ast, null, 4))
         // const code = genCode(ast, context)
         // return ast;
         // fs.writeFileSync("./generated.js", code)
     }
 }
-function main() {
-    const prog = fs.readFileSync("src/example.porth", "utf-8")
-    const maybeAST = parse(prog)
-    if (maybeAST.type === "fail") {
-        throw new Error(maybeAST.value)
-    } else {
-        const { ast, context } = getContext(maybeAST.value)
-        fs.writeFileSync("./ast.json", JSON.stringify(ast, null, 4))
-        const code = genCode(ast, context)
-        fs.writeFileSync("./generated.js", code)
+export async function main(prog: string): Promise<string> {
+    // const prog = "1 2 + print";//fs.readFileSync("src/example.porth", "utf-8")
+    try {
+        console.log("prog is", prog)
+        const maybeAST = parse(prog)
+        if (maybeAST.type === "fail") {
+            return maybeAST.value
+        } else {
+            const { ast, context } = await getContext(maybeAST.value)
+            // fs.writeFileSync("./ast.json", JSON.stringify(ast, null, 4))
+            const code = genCode(ast, context)
+            let stdout = ""
+            let tmp = console.log
+            console.log = (msg) => {
+                stdout += `${msg}\n`;
+                tmp(msg)
+            }
+            eval(code)
+            // stdout += `${e}\n`
+
+            console.log = tmp;
+            return stdout;
+            // fs.writeFileSync("./generated.js", code)
+        }
+    } catch (e) {
+        return `${e}`
     }
 }
-main()
+// main()

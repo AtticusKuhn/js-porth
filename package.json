@@ -8,7 +8,9 @@
     "run": "tsc && node ./dist/index.js",
     "all": "tsc && nearleyc ./src/porth.ne -o grammar.js && node ./dist/index.js && node ./generated.js",
     "up": "nearley-unparse -s number -d 10000 grammar.js",
-    "test": "nearley-test grammar.js  -i \"1 2 = if 3 else 4 end\"      "
+    "test": "nearley-test grammar.js  -i \"1 2 = if 3 else 4 end\"      ",
+    "build-html": "webpack",
+    "deploy": "yarn run build-html && touch website/.nojekyll && git add website && git commit -m \"Initial dist subtree commit\" && git subtree push --prefix website origin gh-pages"
   },
   "dependencies": {
     "moo": "^0.5.1",
@@ -18,6 +20,9 @@
   "devDependencies": {
     "@types/moo": "^0.5.5",
     "@types/nearley": "^2.11.2",
-    "@types/node": "^16.11.7"
+    "@types/node": "^16.11.7",
+    "ts-loader": "^9.2.6",
+    "webpack": "^5.64.0",
+    "webpack-cli": "^4.9.1"
   }
 }
