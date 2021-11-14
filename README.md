@@ -7,7 +7,11 @@ Porth only supports linux, so this can be run in the broswer so people on all op
 see the beauty of Porth.
 # Future Plans
 I plan to make an interactive playground and website for people to try porth in javascript
-# example
+I am going to add more intrinsics such as write_document so people can make websites in porth.
+# How to run
+you can see js_porth in action at https://eulerthedestroyer.github.io/js-porth/
+in order to run, clone this repository and then run `npm run build-html`
+# Example
 If you want to see an example, go to ./src/example.porth That file gets generated into ./generated.js
 ```porth
 1 while dup 100 < do
