@@ -13,9 +13,10 @@
 
         .column {
             float: left;
-            width: 48%;
+            width: 30%;
             padding-bottom: 80px;
             height: 100vh;
+            overflow: scroll;
         }
 
         .row:after {
@@ -40,10 +41,13 @@
             <h1>Input Porth Code</h1>
             <textarea id="input" value="1 2 + print" style="width: 100%; height: 100%;">1 2 + print</textarea>
         </div>
-
-        <div id="output" class="column" style="background-color:#ccc;">
+        <div class="column" style="background-color:#ccc;">
+            <h2>Generated Javascript</h2>
+            <p id="outputjs">Some text..</p>
+        </div>
+        <div class="column" style="background-color:rgba(204, 204, 204, 0.53);">
             <h2>Output</h2>
-            <p>Some text..</p>
+            <p id="output">Some text..</p>
         </div>
     </div>
     <script defer src="./build.js"></script>

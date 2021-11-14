@@ -33,6 +33,7 @@ type Node = { type: "number_literal", value: number } & loc
     | { type: 'mod', value: 'mod' } & loc
     | { type: 'drop', value: 'drop' } & loc
     | { type: 'lt', value: '<' } & loc
+    | { type: 'gt', value: '<' } & loc
     | { type: 'eq', value: '=' } & loc
     | { type: 'identifier', value: string } & loc
     | Constant
@@ -55,19 +56,22 @@ type AST = Node[];
 function parse(code: string): either<string, AST> {
     // Parse something!
     const parser = new nearley.Parser(nearley.Grammar.fromCompiled(grammar));
-
-    parser.feed(code);
-    if (parser.results.length > 1) {
-        for (let i = 0; i < parser.results.length; i++) {
-            console.log("ambiguous parser")
-            // fs.writeFileSync(`./debug/${i}.json`, JSON.stringify(parser.results[i], null, 4))
+    try {
+        parser.feed(code);
+        if (parser.results.length > 1) {
+            for (let i = 0; i < parser.results.length; i++) {
+                console.log("ambiguous parser")
+                // fs.writeFileSync(`./debug/${i}.json`, JSON.stringify(parser.results[i], null, 4))
+            }
+            return left("ambiguous parser")
         }
-        return left("ambiguous parser")
+        if (parser.results.length === 0) {
+            return left("no parse found")
+        }
+        return right(parser.results[0])
+    } catch (e) {
+        return left(e as string);
     }
-    if (parser.results.length === 0) {
-        return left("no parse found")
-    }
-    return right(parser.results[0])
 
 }
 type Context = {
@@ -89,7 +93,8 @@ const getContext = async (ast: AST): Promise<{ ast: AST, context: Context }> => 
             ctx.consts[node.name] = evalStatements(node.body, ctx)
         }
         if (node.type === "proc") {
-            ctx.procs[node.name] = node
+            //@ts-ignore
+            ctx.procs[node.name] = genCodeAux(node.body, ctx)
         }
         if (node.type === "memory") {
             ctx.memories[node.name] = ctx.memorySize
@@ -102,14 +107,19 @@ const getContext = async (ast: AST): Promise<{ ast: AST, context: Context }> => 
         if (node.type === "identifier") {
             if (node.value in ctx.consts) {
                 //@ts-ignore
-                node.type = "number_literal"
+                // node.type = "number_literal"
                 //@ts-ignore
-                node.value = ctx.consts[node.value]
+                // node.value = ctx.consts[node.value]
             } else if (node.value in ctx.memories) {
                 //@ts-ignore
-                node.type = "number_literal"
+                // node.type = "number_literal"
                 //@ts-ignore
-                node.value = ctx.memories[node.value]
+                // node.value = ctx.memories[node.value]
+            } else if (node.value in ctx.procs) {
+                // //@ts-ignore
+                // node.type = "ident"
+                // //@ts-ignore
+                // node.value = node.value// ctx.procs[node.value]
             } else {
                 throw new Error(`no value found for the idenfitifer: ${node.value}`)
             }
@@ -118,15 +128,30 @@ const getContext = async (ast: AST): Promise<{ ast: AST, context: Context }> => 
             ast.splice(i, 1);
             l--;
         }
-        if (node.type === "include") {
-            let req = await fetch(node.file.value)
-            const text = await req.text()
-            console.log("text is", text)
-            const file = await parseAndProcess(text)//fs.readFileSync(node.file.value, "utf-8"))
+        if (node.type === "proc") {
             ast.splice(i, 1);
-            ctx = { ...file.context, ...ctx }
-            ast.splice(i, 0, ...file.ast)
-            l += file.ast.length - 1
+            l--;
+        }
+        if (node.type === "include") {
+            try {
+                let req = await fetch(node.file.value)
+                const text = await req.text()
+                console.log("text is", text)
+                const file = await parseAndProcess(text)//fs.readFileSync(node.file.value, "utf-8"))
+                ast.splice(i, 1);
+                ctx = {
+                    consts: { ...ctx.consts, ...file.context.consts },
+                    procs: { ...ctx.procs, ...file.context.procs },
+                    memories: { ...ctx.memories, ...file.context.memories },
+                    memorySize: ctx.memorySize + file.context.memorySize,
+                }
+                ast.splice(i, 0, ...file.ast)
+                l += file.ast.length - 1
+            } catch (e) {
+                console.log("error is", e)
+                throw new Error(`cannot include file (it doesn't exist)`)
+            }
+
         }
         // if(node.type === "")
     }
@@ -150,7 +175,7 @@ const getContext = async (ast: AST): Promise<{ ast: AST, context: Context }> => 
 //     return right(ast)
 // }
 function evalStatements(ast: AST, ctx: Context): number {
-    const evalledCode = `${genCode(ast, ctx)};\n return stack[0];`
+    const evalledCode = `${genCode(ast, ctx)};\n return JSON.stringify(stack[0]);`
     const code = new Function(evalledCode);
     return code();
 
@@ -161,7 +186,7 @@ function assertUnreachable(x: never): never {
 function genCodeAux(ast: AST, ctx: Context): string {
     return ast.map((node: Node) => {
         let code = ""
-        code += `// code for ${node.type} \n`
+        // code += `// code for ${node.type} \n`
         switch (node.type) {
             case "number_literal":
                 code += `stack.push(${node.value})`
@@ -199,12 +224,14 @@ while (
                 code += `stack.drop()`; break
             case "lt":
                 code += `stack.lt(); `; break
+            case "gt":
+                code += `stack.gt(); `; break
             case "identifier":
                 code += `//identifier ${node.value} \n`
                 if (node.value in ctx.consts) {
                     code += `stack.push(${ctx.consts[node.value]})`
                 } else if (node.value in ctx.procs) {
-                    code += `${ctx.procs[node.value]}()`
+                    code += `${node.value}()`
                 } else if (node.value in ctx.memories) {
                     code += `stack.push(${ctx.memories[node.value]})`
                 } else {
@@ -223,7 +250,7 @@ while (
             case "ifElse":
                 code += `if(stack.pop()){${genCodeAux(node.body, ctx)}}else{ ${node.elseCondition ? genCodeAux(node.elseCondition, ctx) : ""}; ${genCodeAux(node.elseBranch, ctx)}}`; break
             case "proc":
-                throw new Error(`proc is not yet implemented`)
+                throw new Error(`proc should not occur here this is a bug in parsing.`)
             case "comment":
                 code += `//${node.value} \n`; break
             case "load8":
@@ -255,7 +282,13 @@ Array.prototype.lt = function () {
     let a = this.pop();
     let b = this.pop();
     if(a===undefined || b===undefined) throw new Error("not enough arguments for lt")
-    return this.push(a < b)
+    return this.push(b < a)
+}
+Array.prototype.gt = function () {
+    let a = this.pop();
+    let b = this.pop();
+    if(a===undefined || b===undefined) throw new Error("not enough arguments for lt")
+    return this.push(b > a)
 }
 Array.prototype.eq = function () {
     let a = this.pop();
@@ -351,7 +384,12 @@ Array.prototype.load8 = function () {
     this.push(memory[a])
 }
     `
-    return header + main;
+    const procs = Object.entries(ctx.procs).map(([key, value]) => {
+        return `function ${key}(){
+           ${value}
+        };\n`
+    })
+    return header + procs + main;
 }
 async function parseAndProcess(s: string): Promise<{ ast: AST, context: Context }> {
     const maybeAST = parse(s)
@@ -365,32 +403,41 @@ async function parseAndProcess(s: string): Promise<{ ast: AST, context: Context 
         // fs.writeFileSync("./generated.js", code)
     }
 }
-export async function main(prog: string): Promise<string> {
-    // const prog = "1 2 + print";//fs.readFileSync("src/example.porth", "utf-8")
+export const captureEval = (code: string): string => {
     try {
-        console.log("prog is", prog)
-        const maybeAST = parse(prog)
-        if (maybeAST.type === "fail") {
-            return maybeAST.value
-        } else {
-            const { ast, context } = await getContext(maybeAST.value)
-            // fs.writeFileSync("./ast.json", JSON.stringify(ast, null, 4))
-            const code = genCode(ast, context)
-            let stdout = ""
-            let tmp = console.log
-            console.log = (msg) => {
-                stdout += `${msg}\n`;
-                tmp(msg)
-            }
-            eval(code)
-            // stdout += `${e}\n`
-
-            console.log = tmp;
-            return stdout;
-            // fs.writeFileSync("./generated.js", code)
+        let stdout = ""
+        let tmp = console.log
+        console.log = (msg) => {
+            stdout += `${msg}\n`;
+            tmp(msg)
         }
+        eval(code)
+        // stdout += `${e}\n`
+
+        console.log = tmp;
+        return stdout;
+        // fs.writeFileSync("./generated.js", code)
+
     } catch (e) {
         return `${e}`
+    }
+}
+export async function main(prog: string): Promise<string> {
+    // const prog = "1 2 + print";//fs.readFileSync("src/example.porth", "utf-8")
+
+    console.log("prog is", prog)
+    const maybeAST = parse(prog)
+    if (maybeAST.type === "fail") {
+        return maybeAST.value
+    } else {
+        // fs.writeFileSync("./ast.json", JSON.stringify(ast, null, 4))
+        try {
+            const { ast, context } = await getContext(maybeAST.value)
+            const code = genCode(ast, context)
+            return code
+        } catch (e) {
+            return `throw new Error("Compiler error: ${e}")`
+        }
     }
 }
 // main()
