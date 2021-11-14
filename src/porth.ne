@@ -125,6 +125,10 @@ intrinsic -> %plus {% convertTokenId %}
     | %drop {% convertTokenId %} 
     | %store8 {% convertTokenId %} 
     | %load8 {% convertTokenId %}
+    | %store16 {% convertTokenId %} 
+    | %load16 {% convertTokenId %}
+    | %store64 {% convertTokenId %} 
+    | %load64 {% convertTokenId %}
     | %shl {% convertTokenId %} 
     | %shr {% convertTokenId %} 
     | %or {% convertTokenId %} 

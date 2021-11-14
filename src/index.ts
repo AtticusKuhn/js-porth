@@ -43,6 +43,10 @@ type Node = { type: "number_literal", value: number } & loc
     | { type: 'comment', value: string } & loc
     | { type: 'load8', value: "@8" } & loc
     | { type: 'store8', value: "!8" } & loc
+    | { type: 'load16', value: "@8" } & loc
+    | { type: 'store16', value: "!8" } & loc
+    | { type: 'load64', value: "@64" } & loc
+    | { type: 'store64', value: "!64" } & loc
     | { type: 'shl', value: "shl" } & loc
     | { type: 'shr', value: "shr" } & loc
     | { type: 'or', value: "or" } & loc
@@ -132,6 +136,10 @@ const getContext = async (ast: AST): Promise<{ ast: AST, context: Context }> => 
             ast.splice(i, 1);
             l--;
         }
+        if (node.type === "memory") {
+            ast.splice(i, 1);
+            l--;
+        }
         if (node.type === "include") {
             try {
                 let req = await fetch(node.file.value)
@@ -175,7 +183,13 @@ const getContext = async (ast: AST): Promise<{ ast: AST, context: Context }> => 
 //     return right(ast)
 // }
 function evalStatements(ast: AST, ctx: Context): number {
-    const evalledCode = `${genCode(ast, ctx)};\n return JSON.stringify(stack[0]);`
+    const evalledCode = `${genCode(ast, ctx)};\n
+    if(typeof stack[0] === "string"){
+     return JSON.stringify(stack[0]);
+    }else{
+        return stack[0]
+    }
+     `
     const code = new Function(evalledCode);
     return code();
 
@@ -186,7 +200,7 @@ function assertUnreachable(x: never): never {
 function genCodeAux(ast: AST, ctx: Context): string {
     return ast.map((node: Node) => {
         let code = ""
-        // code += `// code for ${node.type} \n`
+        code += `// generated code for ${node.type} operation \n`
         switch (node.type) {
             case "number_literal":
                 code += `stack.push(${node.value})`
@@ -257,6 +271,14 @@ while (
                 code += `stack.load8()`; break
             case "store8":
                 code += `stack.store8()`; break
+            case "load16":
+                code += `stack.load16()`; break
+            case "store16":
+                code += `stack.store16()`; break
+            case "load64":
+                code += `stack.load64()`; break
+            case "store64":
+                code += `stack.store64()`; break
             case "shl":
                 code += `stack.shr()`; break
             case "shr":
@@ -383,6 +405,28 @@ Array.prototype.load8 = function () {
     if (a === undefined ) throw new Error("not enough arguments for load8 intrinsic")
     this.push(memory[a])
 }
+Array.prototype.store16 = function () {
+    let a = this.pop()
+    let b = this.pop()
+    if (a === undefined || b===undefined) throw new Error("not enough arguments for store8 intrinsic")
+    memory[a] = b;
+}
+Array.prototype.load16 = function () {
+    let a = this.pop()
+    if (a === undefined ) throw new Error("not enough arguments for load8 intrinsic")
+    this.push(memory[a])
+}
+Array.prototype.store64 = function () {
+    let a = this.pop()
+    let b = this.pop()
+    if (a === undefined || b===undefined) throw new Error("not enough arguments for store8 intrinsic")
+    memory[a] = b;
+}
+Array.prototype.load64 = function () {
+    let a = this.pop()
+    if (a === undefined ) throw new Error("not enough arguments for load8 intrinsic")
+    this.push(memory[a])
+}
     `
     const procs = Object.entries(ctx.procs).map(([key, value]) => {
         return `function ${key}(){
@@ -407,9 +451,9 @@ export const captureEval = (code: string): string => {
     try {
         let stdout = ""
         let tmp = console.log
-        console.log = (msg) => {
-            stdout += `${msg}\n`;
-            tmp(msg)
+        console.log = (...msg) => {
+            stdout += `${msg.join(" ")}\n`;
+            tmp(...msg)
         }
         eval(code)
         // stdout += `${e}\n`
