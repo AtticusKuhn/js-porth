@@ -47,6 +47,16 @@ type Node = { type: "number_literal", value: number } & loc
     | { type: 'store16', value: "!8" } & loc
     | { type: 'load64', value: "@64" } & loc
     | { type: 'store64', value: "!64" } & loc
+    | { type: 'load32' } & loc
+    | { type: 'store32' } & loc
+    | { type: 'not' } & loc
+    | { type: 'ge' } & loc
+    | { type: 'le' } & loc
+    | { type: 'here' } & loc
+    | { type: 'stop' } & loc
+    | { type: 'not' } & loc
+    | { type: 'rot' } & loc
+    | { type: 'ne' } & loc
     | { type: 'shl', value: "shl" } & loc
     | { type: 'shr', value: "shr" } & loc
     | { type: 'or', value: "or" } & loc
@@ -287,6 +297,24 @@ while (
                 code += `stack.or()`; break
             case "and":
                 code += `stack.and()`; break
+            case "load32":
+                code += `stack.load32()`; break
+            case "store32":
+                code += `stack.store32()`; break
+            case "not":
+                code += `stack.not()`; break
+            case "ge":
+                code += `stack.ge()`; break
+            case "le":
+                code += `stack.and()`; break
+            case "here":
+                code += `stack.push("${node.start}-${node.end}")`; break
+            case "stop":
+                code += `throw new Error("program stopping")`; break
+            case "rot":
+                code += `stack.rot()`; break
+            case "ne":
+                code += `stack.ne()`; break
             case "include":
                 code += `// include file \n`; break
             default:
@@ -299,13 +327,52 @@ while (
 function genCode(ast: AST, ctx: Context): string {
     const main = genCodeAux(ast, ctx);
     const header = `let stack = []; \n
-    let memory  = new Uint8Array(${ctx.memorySize});    
+    let memory  = new Uint8Array(${ctx.memorySize});   
+Array.prototype.rot = function(){
+    let a = this.pop()
+    let b = this.pop()
+    let c = this.pop()
+    this.push(b)
+    this.push(a)
+    this.push(c)
+
+}
+    Array.prototype.store32 = function() {
+        let a = this.pop()
+        let b = this.pop()
+        if (a === undefined || b===undefined) throw new Error("not enough arguments for store32 intrinsic")
+        memory[a] = b;
+    }
+
+Array.prototype.load32 = function() {
+    let a = this.pop()
+    if (a === undefined) throw new Error("not enough arguments for load32 intrinsic")
+    this.push(memory[a])
+}
 Array.prototype.lt = function () {
     let a = this.pop();
     let b = this.pop();
     if(a===undefined || b===undefined) throw new Error("not enough arguments for lt")
     return this.push(b < a)
 }
+Array.prototype.ge = function () {
+    let a = this.pop();
+    let b = this.pop();
+    if(a===undefined || b===undefined) throw new Error("not enough arguments for ge")
+    return this.push(b >= a)
+}
+Array.prototype.le = function () {
+    let a = this.pop();
+    let b = this.pop();
+    if(a===undefined || b===undefined) throw new Error("not enough arguments for le")
+    return this.push(b <= a)
+}
+Array.prototype.not = function () {
+    let a = this.pop();
+    if(a===undefined) throw new Error("not enough arguments for not")
+    return this.push(!a)
+}
+
 Array.prototype.gt = function () {
     let a = this.pop();
     let b = this.pop();
@@ -317,6 +384,12 @@ Array.prototype.eq = function () {
     let b = this.pop();
     if(a===undefined || b===undefined) throw new Error("not enough arguments for eq")
     return this.push(a === b)
+}
+Array.prototype.ne = function () {
+    let a = this.pop();
+    let b = this.pop();
+    if(a===undefined || b===undefined) throw new Error("not enough arguments for ne")
+    return this.push(a !== b)
 }
 Array.prototype.mod = function () {
     let a = this.pop()

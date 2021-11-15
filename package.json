@@ -9,7 +9,7 @@
     "all": "tsc && nearleyc ./src/porth.ne -o grammar.js && node ./dist/index.js && node ./generated.js",
     "up": "nearley-unparse -s number -d 10000 grammar.js",
     "test": "nearley-test grammar.js  -i \"1 2 = if 3 else 4 end\"      ",
-    "build-html": "nearleyc ./src/porth.ne -o grammar.js && webpack",
+    "build-html": "tsc && nearleyc ./src/porth.ne -o grammar.js && webpack",
     "deploy": "yarn run build-html && touch website/.nojekyll && git add website && git commit -m \"Initial dist subtree commit\" && git subtree push --prefix website origin gh-pages"
   },
   "dependencies": {

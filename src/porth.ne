@@ -132,7 +132,19 @@ intrinsic -> %plus {% convertTokenId %}
     | %shl {% convertTokenId %} 
     | %shr {% convertTokenId %} 
     | %or {% convertTokenId %} 
-    | %and {% convertTokenId %} 
+    | %and {% convertTokenId %}
+    | %ge{% convertTokenId %}
+    |%le{% convertTokenId %}
+    |%ne {% convertTokenId %}
+    |%not {% convertTokenId %}
+    |%rot {% convertTokenId %}
+    |%load32 {% convertTokenId %}
+    |%store32 {% convertTokenId %}
+    |%cast_ptr {% convertTokenId %}
+    |%cast_int {% convertTokenId %}
+    |%cast_bool {% convertTokenId %}
+    |%here {% convertTokenId %}
+    |%stop {% convertTokenId %}
 
 
 identifier -> %identifier {% convertTokenId %}
