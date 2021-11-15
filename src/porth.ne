@@ -112,6 +112,7 @@ number -> %number_literal {% convertTokenId %}
 intrinsic -> %plus {% convertTokenId %}
     |    %print {% convertTokenId %}
     |   %minus {% convertTokenId %}
+    |   %times {% convertTokenId %}
     |       %timed {% convertTokenId %}
     |      %divmod {% convertTokenId %}
     |      %mod {% convertTokenId %}

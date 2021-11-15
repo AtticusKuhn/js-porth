@@ -108,6 +108,7 @@ var grammar = {
     {"name": "intrinsic", "symbols": [(lexer.has("plus") ? {type: "plus"} : plus)], "postprocess": convertTokenId},
     {"name": "intrinsic", "symbols": [(lexer.has("print") ? {type: "print"} : print)], "postprocess": convertTokenId},
     {"name": "intrinsic", "symbols": [(lexer.has("minus") ? {type: "minus"} : minus)], "postprocess": convertTokenId},
+    {"name": "intrinsic", "symbols": [(lexer.has("times") ? {type: "times"} : times)], "postprocess": convertTokenId},
     {"name": "intrinsic", "symbols": [(lexer.has("timed") ? {type: "timed"} : timed)], "postprocess": convertTokenId},
     {"name": "intrinsic", "symbols": [(lexer.has("divmod") ? {type: "divmod"} : divmod)], "postprocess": convertTokenId},
     {"name": "intrinsic", "symbols": [(lexer.has("mod") ? {type: "mod"} : mod)], "postprocess": convertTokenId},

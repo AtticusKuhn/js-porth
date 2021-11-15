@@ -13,8 +13,14 @@ const left = <A, B>(a: A): either<A, B> => ({ type: "fail", value: a })
 const right = <A, B>(b: B): either<A, B> => ({ type: "success", value: b })
 
 type loc = {
-    start: any,
-    end: any
+    start: {
+        line: number,
+        col: number
+    },
+    end: {
+        line: number,
+        col: number
+    },
 }
 type Conditional = { type: 'if', body: AST } & loc
     | { type: 'ifElse', body: AST, elseBranch: AST, elseCondition?: AST } & loc
@@ -26,6 +32,7 @@ type Node = { type: "number_literal", value: number } & loc
     | { type: "include", file: str }
     | { type: 'plus', value: '+' } & loc
     | { type: 'minus', value: '-' } & loc
+    | { type: 'times', value: '*' } & loc
     | { type: 'print', value: 'print' } & loc
     | { type: 'swap', value: 'swap' } & loc
     | { type: 'over', value: 'over' } & loc
@@ -221,6 +228,9 @@ function genCodeAux(ast: AST, ctx: Context): string {
             case "plus":
                 code += `stack.plus()`
                 break;
+            case "times":
+                code += `stack.times()`
+                break;
             case "minus":
                 code += `stack.minus()`
                 break;
@@ -308,7 +318,7 @@ while (
             case "le":
                 code += `stack.and()`; break
             case "here":
-                code += `stack.push("${node.start}-${node.end}")`; break
+                code += `stack.push("${node.start.line}:${node.start.line}-${node.end.line}:${node.end.col}")`; break
             case "stop":
                 code += `throw new Error("program stopping")`; break
             case "rot":
@@ -450,7 +460,13 @@ Array.prototype.minus = function () {
     let a = this.pop();
     let b = this.pop();
     if(a===undefined || b===undefined) throw new Error("not enough arguments for minus")
-    this.push(a-b)
+    this.push(b-a)
+}
+Array.prototype.times = function () {
+    let a = this.pop();
+    let b = this.pop();
+    if(a===undefined || b===undefined) throw new Error("not enough arguments for minus")
+    this.push(a*b)
 }
 Array.prototype.print = function () {
     let a =this.pop()
@@ -504,10 +520,10 @@ Array.prototype.load64 = function () {
            ${value}
         };\n`
     })
-    const end = `\nif(stack.length > 0){
-    throw new Error("unhandled data on the stack")
-}`
-    return header + procs + main + end;
+    //     const end = `\nif(stack.length > 0){
+    //     throw new Error("unhandled data on the stack")
+    // }`
+    return header + procs + main //+ end;
 }
 async function parseAndProcess(s: string): Promise<{ ast: AST, context: Context }> {
     const maybeAST = parse(s)
