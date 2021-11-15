@@ -4,11 +4,11 @@ import nearley from "nearley"
 //@ts-ignore
 const grammar = require("../grammar.js")
 // Create a Parser object from our grammar.
-
 type either<A, B> = {
     type: "fail",
     value: A,
 } | { type: "success", value: B }
+const isBroswer = () => typeof window !== "undefined"
 const left = <A, B>(a: A): either<A, B> => ({ type: "fail", value: a })
 const right = <A, B>(b: B): either<A, B> => ({ type: "success", value: b })
 
@@ -21,15 +21,17 @@ type loc = {
         line: number,
         col: number
     },
+    inside?: Block
 }
 type Conditional = { type: 'if', body: AST } & loc
     | { type: 'ifElse', body: AST, elseBranch: AST, elseCondition?: AST } & loc
 type Proc = { type: "proc", name: string, body: AST } & loc
+type Block = "while" | "if" | " ifElse" | "proc" | "memory" | "macro";
 type str = { type: "string_literal", value: string } & loc
 type Constant = { type: 'const', name: string, body: AST } & loc
 type Node = { type: "number_literal", value: number } & loc
     | str
-    | { type: "include", file: str }
+    | { type: "include", file: str } & loc
     | { type: 'plus', value: '+' } & loc
     | { type: 'minus', value: '-' } & loc
     | { type: 'times', value: '*' } & loc
@@ -102,6 +104,36 @@ type Context = {
     memorySize: number;
 }
 // type constVal = string | number;
+const typeCheck = (ast: AST): string[] => {
+    console.log("typecheck called")
+    let errors: string[] = []
+    console.log("ast", ast)
+    for (const node of ast) {
+        console.log("in typecheck, it's", node?.inside)
+        if (node.type === "const") {
+            typeCheck(node.body)
+            if (node.inside) throw new Error(`a const cannot be defined inside a ${node.inside}`)
+        };
+
+        if (node.type === "proc") {
+            typeCheck(node.body)
+            if (node.inside) throw new Error(`a proc cannot be defined inside a ${node.inside}`)
+        }
+        if (node.type === "memory") {
+            typeCheck(node.body)
+            // if (node.inside) throw new Error(`a proc cannot be defined inside a ${node.inside}`)
+        }
+        if (node.type === "if") {
+            typeCheck(node.body)
+        }
+        if (node.type === "ifElse") {
+            typeCheck(node.body)
+            typeCheck(node.elseBranch)
+            node.elseCondition && typeCheck(node.elseCondition)
+        }
+    }
+    return errors
+}
 const getContext = async (ast: AST): Promise<{ ast: AST, context: Context }> => {
     let ctx: Context = {
         procs: {},
@@ -111,13 +143,16 @@ const getContext = async (ast: AST): Promise<{ ast: AST, context: Context }> => 
     };
     for (const node of ast) {
         if (node.type === "const") {
+            if (node.inside !== undefined) throw new Error(`a const cannot be defined inside a ${node.inside}`)
             ctx.consts[node.name] = evalStatements(node.body, ctx)
         }
         if (node.type === "proc") {
+            if (node.inside !== undefined) throw new Error(`a const cannot be defined inside a ${node.inside}`)
             //@ts-ignore
             ctx.procs[node.name] = genCodeAux(node.body, ctx)
         }
         if (node.type === "memory") {
+            if (node.inside !== undefined) throw new Error(`a const cannot be defined inside a ${node.inside}`)
             ctx.memories[node.name] = ctx.memorySize
             ctx.memorySize += evalStatements(node.body, ctx)
         }
@@ -201,11 +236,15 @@ const getContext = async (ast: AST): Promise<{ ast: AST, context: Context }> => 
 // }
 function evalStatements(ast: AST, ctx: Context): number {
     const evalledCode = `${genCode(ast, ctx)};\n
-    if(typeof stack[0] === "string"){
-     return JSON.stringify(stack[0]);
-    }else{
-        return stack[0]
+    let res  = stack.pop()
+    if(res===undefined){
+        throw new Error("no elements to return in evalStaments function")
     }
+    if(typeof res === "string"){
+     return JSON.stringify(res);
+    }else{
+        return res;
+    };
      `
     const code = new Function(evalledCode);
     return code();
@@ -509,21 +548,21 @@ Array.prototype.store64 = function () {
     let b = this.pop()
     if (a === undefined || b===undefined) throw new Error("not enough arguments for store8 intrinsic")
     memory[a] = b;
-}
+};
 Array.prototype.load64 = function () {
     let a = this.pop()
     if (a === undefined ) throw new Error("not enough arguments for load8 intrinsic")
     this.push(memory[a])
-}`
+};`
     const procs = Object.entries(ctx.procs).map(([key, value]) => {
         return `function ${key}(){
            ${value}
         };\n`
     })
-    //     const end = `\nif(stack.length > 0){
-    //     throw new Error("unhandled data on the stack")
+    // const end = `\nif(stack.length > 0){
+    //     throw new Error(\`unhandled data on the stack \${JSON.stringify(stack)}\`)
     // }`
-    return header + procs + main //+ end;
+    return header + procs + main// + end;
 }
 async function parseAndProcess(s: string): Promise<{ ast: AST, context: Context }> {
     const maybeAST = parse(s)
@@ -566,12 +605,29 @@ export async function main(prog: string): Promise<string> {
     } else {
         // fs.writeFileSync("./ast.json", JSON.stringify(ast, null, 4))
         try {
+            const errors = typeCheck(maybeAST.value)
             const { ast, context } = await getContext(maybeAST.value)
             const code = genCode(ast, context)
+            // const errors = typeCheck(ast)
+            console.log("typecheck errors are", errors)
+            if (errors.length > 0) throw new Error(JSON.stringify(errors))
             return code
         } catch (e) {
             return `throw new Error("Compiler error: ${e}")`
         }
     }
 }
+if (!isBroswer()) {
+    console.log("not browser")
+    // import("fs").then(async (fs) => {
+    //     const prog = fs.readFileSync("src/example.porth", "utf-8")
+    //     const maybeAST = parse(prog)
+    //     if (maybeAST.type === "success") {
+    //         fs.writeFileSync("ast.json", JSON.stringify(maybeAST.value, null, 4))
+    //     }
+    //     const res = await main(prog)
+    //     fs.writeFileSync("generated.js", res)
+    // })
+}
+// console.log(`typeof window === "undefined"`, typeof window === "undefined")
 // main()

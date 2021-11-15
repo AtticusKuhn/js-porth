@@ -6,7 +6,7 @@
   "scripts": {
     "gp": "tsc && nearleyc ./src/porth.ne -o grammar.js",
     "run": "tsc && node ./dist/index.js",
-    "all": "tsc && nearleyc ./src/porth.ne -o grammar.js && node ./dist/index.js && node ./generated.js",
+    "all": "tsc && nearleyc ./src/porth.ne -o grammar.js && node ./dist/index.js",
     "up": "nearley-unparse -s number -d 10000 grammar.js",
     "test": "nearley-test grammar.js  -i \"1 2 = if 3 else 4 end\"      ",
     "build-html": "tsc && nearleyc ./src/porth.ne -o grammar.js && webpack",

@@ -54,50 +54,68 @@ var grammar = {
     {"name": "statement", "symbols": ["whileStatement"], "postprocess": id},
     {"name": "statement", "symbols": ["string_literal"], "postprocess": id},
     {"name": "statement", "symbols": ["line_comment"], "postprocess": id},
-    {"name": "whileStatement", "symbols": [(lexer.has("whileStatement") ? {type: "whileStatement"} : whileStatement), "_ml", "statements", "_ml", (lexer.has("doStatement") ? {type: "doStatement"} : doStatement), "_ml", "statements", "_ml", (lexer.has("end") ? {type: "end"} : end)], "postprocess": d=>({
+    {"name": "whileStatement", "symbols": [(lexer.has("whileStatement") ? {type: "whileStatement"} : whileStatement), "_ml", "statements", "_ml", (lexer.has("doStatement") ? {type: "doStatement"} : doStatement), "_ml", "statements", "_ml", (lexer.has("end") ? {type: "end"} : end)], "postprocess": d=>{
+            d[6] = d[6].map(x=>Object.assign(x, {inside:"while"}));
+            d[2] = d[2].map(x=>Object.assign(x, {inside:"while"}));
+            return {
            type:"while",
            condition: d[2],
            body: d[6],
-        })},
+        }}},
     {"name": "conditional", "symbols": ["ifStatement"], "postprocess": id},
     {"name": "conditional", "symbols": ["ifElse"], "postprocess": id},
-    {"name": "ifElse", "symbols": [(lexer.has("ifStatement") ? {type: "ifStatement"} : ifStatement), "_ml", "statements", "_ml", (lexer.has("elseStatement") ? {type: "elseStatement"} : elseStatement), "_ml", "statements", "_ml", (lexer.has("end") ? {type: "end"} : end)], "postprocess": d=>({
+    {"name": "ifElse", "symbols": [(lexer.has("ifStatement") ? {type: "ifStatement"} : ifStatement), "_ml", "statements", "_ml", (lexer.has("elseStatement") ? {type: "elseStatement"} : elseStatement), "_ml", "statements", "_ml", (lexer.has("end") ? {type: "end"} : end)], "postprocess": d=>{
+            d[6] = d[6].map(x=>Object.assign(x, {inside:"ifElse"}))
+            d[2] = d[2].map(x=>Object.assign(x, {inside:"ifElse"}))
+            return{
             type:"ifElse",
             // condition:d[0],
             body:d[2],
             elseBranch:d[6]
-        })},
-    {"name": "ifElse", "symbols": [(lexer.has("ifStatement") ? {type: "ifStatement"} : ifStatement), "_ml", "statements", "_ml", (lexer.has("elseStatement") ? {type: "elseStatement"} : elseStatement), "_ml", "statements", "_ml", "conditional"], "postprocess": d=>({
+        }}},
+    {"name": "ifElse", "symbols": [(lexer.has("ifStatement") ? {type: "ifStatement"} : ifStatement), "_ml", "statements", "_ml", (lexer.has("elseStatement") ? {type: "elseStatement"} : elseStatement), "_ml", "statements", "_ml", "conditional"], "postprocess": d=>{
+            d[6] = d[6].map(x=>Object.assign(x, {inside:"ifElse"}))
+            d[2] = d[2].map(x=>Object.assign(x, {inside:"ifElse"}))
+            d[8] = d[8].map(x=>Object.assign(x, {inside:"ifElse"}))
+            return {
             type:"ifElse",
             elseCondition: d[6],
             body:d[2],
             elseBranch:[d[8]]
-        })},
-    {"name": "ifStatement", "symbols": [(lexer.has("ifStatement") ? {type: "ifStatement"} : ifStatement), "_ml", "statements", "_ml", (lexer.has("end") ? {type: "end"} : end)], "postprocess": d=>({
+        }}},
+    {"name": "ifStatement", "symbols": [(lexer.has("ifStatement") ? {type: "ifStatement"} : ifStatement), "_ml", "statements", "_ml", (lexer.has("end") ? {type: "end"} : end)], "postprocess": d=>{
+            d[2] = d[2].map(x=>Object.assign(x, {inside:"if"}))
+            return {
             type:"if",
            // condition: d[0],
             body: d[2],
-        })},
+        }}},
     {"name": "macro", "symbols": [(lexer.has("macro") ? {type: "macro"} : macro), "_ml", "identifier", "_ml", "statements", "_ml", (lexer.has("end") ? {type: "end"} : end)], "postprocess": d=>({
             type:"macro",
             name:d[2].value,
             body:d[4]
         })},
-    {"name": "memory", "symbols": [(lexer.has("memory") ? {type: "memory"} : memory), "_ml", "identifier", "_ml", "statements", "_ml", (lexer.has("end") ? {type: "end"} : end)], "postprocess": d=>({
+    {"name": "memory", "symbols": [(lexer.has("memory") ? {type: "memory"} : memory), "_ml", "identifier", "_ml", "statements", "_ml", (lexer.has("end") ? {type: "end"} : end)], "postprocess": d=>{
+            d[4] = d[4].map(x=>Object.assign(x, {inside:"memory"}))
+            return {
             type:"memory",
             name:d[2].value,
             body:d[4]
-        })},
-    {"name": "proc", "symbols": [(lexer.has("proc") ? {type: "proc"} : proc), "_ml", "identifier", "_ml", "statements", "_ml", (lexer.has("end") ? {type: "end"} : end)], "postprocess": d=>({
+        }}},
+    {"name": "proc", "symbols": [(lexer.has("proc") ? {type: "proc"} : proc), "_ml", "identifier", "_ml", "statements", "_ml", (lexer.has("end") ? {type: "end"} : end)], "postprocess": d=>{
+            d[4] = d[4].map(x=>Object.assign(x, {inside:"proc"}))
+            return {
             type:"proc",
             name:d[2].value,
             body:d[4]
-        })},
-    {"name": "constStatement", "symbols": [(lexer.has("constStatement") ? {type: "constStatement"} : constStatement), "_ml", "identifier", "_ml", "statements", "_ml", (lexer.has("end") ? {type: "end"} : end)], "postprocess": d=>({
+        }}},
+    {"name": "constStatement", "symbols": [(lexer.has("constStatement") ? {type: "constStatement"} : constStatement), "_ml", "identifier", "_ml", "statements", "_ml", (lexer.has("end") ? {type: "end"} : end)], "postprocess": d=>{
+            d[4] = d[4].map(x=>Object.assign(x, {inside:"const"}))
+            return {
             type:"const",
             name:d[2].value,
             body:d[4]
-        })},
+        }}},
     {"name": "include", "symbols": [(lexer.has("include") ? {type: "include"} : include), "_ml", "string_literal"], "postprocess": d=>({
             type:"include",
             file:d[2],

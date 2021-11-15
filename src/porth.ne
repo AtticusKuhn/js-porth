@@ -53,51 +53,69 @@ statement ->  number  {%id%}
     | line_comment {%id%}
 
 
-whileStatement -> %whileStatement _ml statements _ml %doStatement _ml statements _ml %end  {%d=>({
+whileStatement -> %whileStatement _ml statements _ml %doStatement _ml statements _ml %end  {%d=>{
+    d[6] = d[6].map(x=>Object.assign(x, {inside:"while"}));
+    d[2] = d[2].map(x=>Object.assign(x, {inside:"while"}));
+    return {
    type:"while",
    condition: d[2],
    body: d[6],
-})%}
+}}%}
 conditional ->ifStatement {%id%} | ifElse {%id%} 
 ifElse -> 
-     %ifStatement  _ml statements _ml %elseStatement _ml statements _ml  %end {%d=>({
+     %ifStatement  _ml statements _ml %elseStatement _ml statements _ml  %end {%d=>{
+        d[6] = d[6].map(x=>Object.assign(x, {inside:"ifElse"}))
+        d[2] = d[2].map(x=>Object.assign(x, {inside:"ifElse"}))
+        return{
         type:"ifElse",
         // condition:d[0],
         body:d[2],
         elseBranch:d[6]
-    })%}
-    |  %ifStatement  _ml statements _ml %elseStatement _ml statements _ml conditional {%d=>({
+    }}%}
+    |  %ifStatement  _ml statements _ml %elseStatement _ml statements _ml conditional {%d=>{
+        d[6] = d[6].map(x=>Object.assign(x, {inside:"ifElse"}))
+        d[2] = d[2].map(x=>Object.assign(x, {inside:"ifElse"}))
+        d[8] = d[8].map(x=>Object.assign(x, {inside:"ifElse"}))
+        return {
         type:"ifElse",
         elseCondition: d[6],
         body:d[2],
         elseBranch:[d[8]]
-    })%}
-ifStatement ->   %ifStatement  _ml statements _ml %end  {%d=>({
+    }}%}
+ifStatement ->   %ifStatement  _ml statements _ml %end  {%d=>{
+    d[2] = d[2].map(x=>Object.assign(x, {inside:"if"}))
+    return {
     type:"if",
    // condition: d[0],
     body: d[2],
-})%}
+}}%}
 
 macro -> %macro _ml identifier _ml  statements _ml %end {%d=>({
     type:"macro",
     name:d[2].value,
     body:d[4]
 })%}
-memory -> %memory _ml identifier _ml  statements _ml %end {%d=>({
+memory -> %memory _ml identifier _ml  statements _ml %end {%d=>{
+    d[4] = d[4].map(x=>Object.assign(x, {inside:"memory"}))
+    return {
     type:"memory",
     name:d[2].value,
     body:d[4]
-})%}
-proc -> %proc _ml identifier _ml  statements _ml %end {%d=>({
+}}%}
+proc -> %proc _ml identifier _ml  statements _ml %end {%d=>{
+    d[4] = d[4].map(x=>Object.assign(x, {inside:"proc"}))
+    return {
     type:"proc",
     name:d[2].value,
     body:d[4]
-})%}
-constStatement -> %constStatement _ml identifier _ml statements _ml %end {%d=>({
+}}%}
+constStatement -> %constStatement _ml identifier _ml statements _ml %end {%d=>{
+    d[4] = d[4].map(x=>Object.assign(x, {inside:"const"}))
+    return {
     type:"const",
     name:d[2].value,
     body:d[4]
-})%}
+}}%}
 include -> %include _ml string_literal {%d=>({
     type:"include",
     file:d[2],
