@@ -270,9 +270,9 @@ while (
             case "memory":
                 code += `stack.push(${ctx.memories[node.name]})`; break
             case "if":
-                code += `if(stack.pop()){${genCodeAux(node.body, ctx)}}`; break
+                code += `if(stack.pop()){\n\t${genCodeAux(node.body, ctx)}}`; break
             case "ifElse":
-                code += `if(stack.pop()){${genCodeAux(node.body, ctx)}}else{ ${node.elseCondition ? genCodeAux(node.elseCondition, ctx) : ""}; ${genCodeAux(node.elseBranch, ctx)}}`; break
+                code += `if(stack.pop()){\n\t${genCodeAux(node.body, ctx)}}else{\n\t${node.elseCondition ? genCodeAux(node.elseCondition, ctx) : ""}; ${genCodeAux(node.elseBranch, ctx)}}`; break
             case "proc":
                 throw new Error(`proc should not occur here this is a bug in parsing.`)
             case "comment":
@@ -327,7 +327,7 @@ while (
 function genCode(ast: AST, ctx: Context): string {
     const main = genCodeAux(ast, ctx);
     const header = `let stack = []; \n
-    let memory  = new Uint8Array(${ctx.memorySize});   
+let memory  = new Uint8Array(${ctx.memorySize});   
 Array.prototype.rot = function(){
     let a = this.pop()
     let b = this.pop()
@@ -337,13 +337,12 @@ Array.prototype.rot = function(){
     this.push(c)
 
 }
-    Array.prototype.store32 = function() {
-        let a = this.pop()
-        let b = this.pop()
-        if (a === undefined || b===undefined) throw new Error("not enough arguments for store32 intrinsic")
-        memory[a] = b;
-    }
-
+Array.prototype.store32 = function() {
+    let a = this.pop()
+    let b = this.pop()
+    if (a === undefined || b===undefined) throw new Error("not enough arguments for store32 intrinsic")
+    memory[a] = b;
+}
 Array.prototype.load32 = function() {
     let a = this.pop()
     if (a === undefined) throw new Error("not enough arguments for load32 intrinsic")
@@ -499,14 +498,16 @@ Array.prototype.load64 = function () {
     let a = this.pop()
     if (a === undefined ) throw new Error("not enough arguments for load8 intrinsic")
     this.push(memory[a])
-}
-    `
+}`
     const procs = Object.entries(ctx.procs).map(([key, value]) => {
         return `function ${key}(){
            ${value}
         };\n`
     })
-    return header + procs + main;
+    const end = `\nif(stack.length > 0){
+    throw new Error("unhandled data on the stack")
+}`
+    return header + procs + main + end;
 }
 async function parseAndProcess(s: string): Promise<{ ast: AST, context: Context }> {
     const maybeAST = parse(s)
