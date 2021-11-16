@@ -1,8 +1,15 @@
-const num 100 end
-1
-dup num < if
- "it's less"
-else dup num = then
- "equal"
+const num 
+    100
 end
+
+1
+
+dup num < if
+    "it's less"
+else dup num = if
+    "equal"
+else
+    "greater"
+end
+print
  
