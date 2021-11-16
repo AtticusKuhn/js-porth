@@ -35,7 +35,7 @@ export const lexer = moo.compile({
         value: s => Number(s)
     },
     intrinsic: {
-        match: /\+|\-|\*|divmod|max|print|over|swap|dup|mod|drop|!8|@8|!16|@16|!64|@64|shl|shr|or|and|ge|le|ne|not|rot|!32|@32|here|stop|>=|<=|!=|!|cast\(ptr\)|cast\(bool\)|cast\(int\)|\=|\>|\</,
+        match: /\+|\-|\*|divmod|max|print|over|swap|dup|mod|drop|!8|@8|!16|@16|!64|@64|shl|shr|or|and|ne|not|rot|!32|@32|here|stop|>=|<=|!=|!|cast\(ptr\)|cast\(bool\)|cast\(int\)|\=|\>|\</,
         type: moo.keywords({
             plus: "+",
             minus: "-",
