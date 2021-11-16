@@ -78,7 +78,8 @@ export const lexer = moo.compile({
     identifier: {
         match: /[^\s \t]+/,
         type: moo.keywords({
-            ifStatement: "if",
+            ifStatement: ["if", "if*"],
+            // ifStar: "if*",
             elseStatement: "else",
             whileStatement: "while",
             doStatement: "do",

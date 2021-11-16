@@ -6,6 +6,16 @@ const outputjs = document.getElementById("outputjs") as HTMLDivElement
 
 const run = document.getElementById("run") as HTMLButtonElement
 const autorun = document.getElementById("autorun") as HTMLInputElement
+const select = document.getElementById("select") as HTMLSelectElement
+
+select.onchange = async () => {
+    console.log("getting example")
+    const req = await fetch(`examples/${select.value}`)
+    const text = await req.text()
+    input.value = text;
+    set();
+}
+
 
 const set = async () => {
     console.log("input changed")

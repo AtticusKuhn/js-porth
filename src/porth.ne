@@ -82,6 +82,17 @@ ifElse ->
         body:d[2],
         elseBranch:[d[8]]
     }}%}
+    # |  %ifStatement  _ml statements _ml %elseStatement _ml statements _ml (%ifStar _ml statements  _ml %elseStatement _ml statements _ml):+ %end {%d=>{
+    #     d[6] = d[6].map(x=>Object.assign(x, {inside:"ifElse"}))
+    #     d[2] = d[2].map(x=>Object.assign(x, {inside:"ifElse"}))
+    #     console.log("in if*else, d is", d)
+    #     d[8] = d[8].map(x=>Object.assign(x, {inside:"ifElse"}))
+    #     return {
+    #     type:"ifElse",
+    #     elseCondition: d[6],
+    #     body:d[2],
+    #     elseBranch:d[8]
+    # }}%}
 ifStatement ->   %ifStatement  _ml statements _ml %end  {%d=>{
     d[2] = d[2].map(x=>Object.assign(x, {inside:"if"}))
     return {

@@ -1,0 +1,4 @@
+1 while dup 100 < do // define while loop
+ "hi" print dup print // do action on each loop
+ 1 + // increment counter
+end
