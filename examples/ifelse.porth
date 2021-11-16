@@ -1,0 +1,8 @@
+const num 100 end
+1
+dup num < if
+ "it's less"
+else dup num = then
+ "equal"
+end
+ 
