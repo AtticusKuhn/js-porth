@@ -31,8 +31,8 @@
             margin: 10px;
             padding: 10px;
             border: 0;
-            width: calc(100% - 32px);
-            height: 150px;
+            width: 100%;
+            height: 100%;
         }
 
         #editing,
@@ -46,15 +46,15 @@
         }
 
 
-        #editing,
+        /* #editing,
         #highlighting {
-            /* In the same place */
-            /* position: absolute; */
-            top: 0;
-            left: 0;
+            /* In the same place 
+        position: absolute;
+        top: 0;
+        left: 0;
         }
 
-
+        */
         /* Move the textarea in front of the result */
 
         #editing {
@@ -145,7 +145,7 @@ https://prismjs.com/download.html#themes=prism-funky&languages=markup */
         code[class*="language-"] {
             /* background: black; */
             color: white;
-            box-shadow: -.3em 0 0 .3em black, .3em 0 0 .3em black;
+            /* box-shadow: -.3em 0 0 .3em black, .3em 0 0 .3em black; */
         }
 
         /* Inline code */
@@ -156,87 +156,56 @@ https://prismjs.com/download.html#themes=prism-funky&languages=markup */
             white-space: normal;
         }
 
-        .token.comment,
-        .token.prolog,
-        .token.doctype,
-        .token.cdata {
-            color: #aaa;
+        .ws {
+            color: white
         }
 
-        .token.punctuation {
-            color: #999;
+        .nl {
+            color: white;
         }
 
-        .token.namespace {
-            opacity: .7;
+        .comment {
+            color: gray;
         }
 
-        .token.property,
-        .token.tag,
-        .token.boolean,
-        .token.number,
-        .token.constant,
-        .token.symbol {
-            color: #0cf;
+        .string_literal {
+            color: blue;
         }
 
-        .token.selector,
-        .token.attr-name,
-        .token.string,
-        .token.char,
-        .token.builtin {
-            color: yellow;
+        .number_literal {
+            color: green;
         }
 
-        .token.operator,
-        .token.entity,
-        .token.url,
-        .language-css .token.string,
-        .token.variable,
-        .token.inserted {
-            color: yellowgreen;
-        }
-
-        .token.atrule,
-        .token.attr-value,
-        .token.keyword {
-            color: deeppink;
-        }
-
-        .token.regex,
-        .token.important {
+        .intrinsic {
             color: orange;
         }
 
-        .token.important,
-        .token.bold {
-            font-weight: bold;
+        .keyword {
+            color: pink;
         }
 
-        .token.italic {
-            font-style: italic;
+        .identifier {
+            color: yellow;
         }
 
-        .token.entity {
-            cursor: help;
+        .container_row {
+            display: grid;
         }
 
-        .token.deleted {
-            color: red;
+        .layer1,
+        .layer2 {
+            grid-column: 1;
+            grid-row: 1;
         }
 
-        /* Plugin styles: Diff Highlight */
-        pre.diff-highlight.diff-highlight>code .token.deleted:not(.prefix),
-        pre>code.diff-highlight.diff-highlight .token.deleted:not(.prefix) {
-            background-color: rgba(255, 0, 0, .3);
-            display: inline;
-        }
+        /* .layer1 span {
+            color: #fff;
+            background: #000cf6;
+        } */
 
-        pre.diff-highlight.diff-highlight>code .token.inserted:not(.prefix),
-        pre>code.diff-highlight.diff-highlight .token.inserted:not(.prefix) {
-            background-color: rgba(0, 255, 128, .3);
-            display: inline;
-        }
+        /* .layer2 {
+            background: rgba(255, 0, 0, 0.4);
+        } */
 
         /* End of prism.js syntax highlighting*/
     </style>
@@ -267,15 +236,15 @@ https://prismjs.com/download.html#themes=prism-funky&languages=markup */
         <div class="column" style="background-color:#aaa;">
             <h1>Input Porth Code</h1>
             <div style="height: 200px;">
-                <textarea placeholder="Enter HTML Source Code" id="editing" spellcheck="false"
-                    oninput="update(this.value); sync_scroll(this);" onscroll="sync_scroll(this);"
-                    onkeydown="check_tab(this, event);"></textarea>
-                <pre id="highlighting" aria-hidden="true">
-                    <code class="language-porth" id="highlighting-content">
-                    1 2 + print
-                    <!-- &lt;span title=&quot;Start Typing&quot;&gt;Just start typing!&lt;/span&gt; -->
-                    </code>
+                <div class="container_row">
+
+                    <textarea class="layer1" id="editing" spellcheck="false"
+                        oninput="update(this.value); sync_scroll(this);" onscroll="sync_scroll(this);"
+                        onkeydown="check_tab(this, event);"></textarea>
+                    <pre class="layer2" id="highlighting" aria-hidden="true">
+                    <code class="language-porth" id="highlighting-content">1 2 + print</code>
                 </pre>
+                </div>
             </div>
             <!-- <textarea id="input" value="1 2 + print" style="width: 100%; height: 100%;">1 2 + print</textarea> -->
         </div>
