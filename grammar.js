@@ -76,7 +76,7 @@ var grammar = {
     {"name": "ifElse", "symbols": [(lexer.has("ifStatement") ? {type: "ifStatement"} : ifStatement), "_ml", "statements", "_ml", (lexer.has("elseStatement") ? {type: "elseStatement"} : elseStatement), "_ml", "statements", "_ml", "conditional"], "postprocess": d=>{
             d[6] = d[6].map(x=>Object.assign(x, {inside:"ifElse"}))
             d[2] = d[2].map(x=>Object.assign(x, {inside:"ifElse"}))
-            d[8] = d[8].map(x=>Object.assign(x, {inside:"ifElse"}))
+            d[8].inside = "ifElse"
             return {
             type:"ifElse",
             elseCondition: d[6],

@@ -121,7 +121,7 @@ const typeCheck = (ast: AST): string[] => {
         }
         if (node.type === "memory") {
             typeCheck(node.body)
-            // if (node.inside) throw new Error(`a proc cannot be defined inside a ${node.inside}`)
+            if (node.inside && node.inside !== "proc") throw new Error(`a proc cannot be defined inside a ${node.inside}`)
         }
         if (node.type === "if") {
             typeCheck(node.body)
@@ -182,15 +182,18 @@ const getContext = async (ast: AST): Promise<{ ast: AST, context: Context }> => 
         }
         if (node.type === "const") {
             ast.splice(i, 1);
+            i--
             l--;
         }
         if (node.type === "proc") {
             ast.splice(i, 1);
+            i--
             l--;
         }
         if (node.type === "memory") {
             ast.splice(i, 1);
             l--;
+            i--
         }
         if (node.type === "include") {
             try {
@@ -215,6 +218,7 @@ const getContext = async (ast: AST): Promise<{ ast: AST, context: Context }> => 
         }
         // if(node.type === "")
     }
+    console.log("after postprocess, ast is", ast)
     return { ast, context: ctx }
 }
 // const preProcessor = (ast: AST, context: Context): either<string, AST> => {

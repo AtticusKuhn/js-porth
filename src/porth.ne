@@ -75,7 +75,7 @@ ifElse ->
     |  %ifStatement  _ml statements _ml %elseStatement _ml statements _ml conditional {%d=>{
         d[6] = d[6].map(x=>Object.assign(x, {inside:"ifElse"}))
         d[2] = d[2].map(x=>Object.assign(x, {inside:"ifElse"}))
-        d[8] = d[8].map(x=>Object.assign(x, {inside:"ifElse"}))
+        d[8].inside = "ifElse"
         return {
         type:"ifElse",
         elseCondition: d[6],
