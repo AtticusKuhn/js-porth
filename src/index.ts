@@ -70,6 +70,8 @@ type Node = { type: "number_literal", value: number } & loc
     | { type: 'shr', value: "shr" } & loc
     | { type: 'or', value: "or" } & loc
     | { type: 'and', value: "and" } & loc
+    | { type: 'offset', value: "offset" } & loc
+    | { type: 'reset', value: "reset" } & loc
     | Conditional
     | Proc
 
@@ -102,6 +104,7 @@ type Context = {
     consts: Record<string, number>,
     memories: Record<string, number>,
     memorySize: number;
+    iotaCount: number;
 }
 // type constVal = string | number;
 const typeCheck = (ast: AST): string[] => {
@@ -139,7 +142,8 @@ const getContext = async (ast: AST): Promise<{ ast: AST, context: Context }> => 
         procs: {},
         consts: {},
         memories: {},
-        memorySize: 0
+        memorySize: 0,
+        iotaCount: 0,
     };
     for (const node of ast) {
         if (node.type === "const") {
@@ -160,6 +164,20 @@ const getContext = async (ast: AST): Promise<{ ast: AST, context: Context }> => 
     let l = ast.length;
     for (let i = 0; i < l; i++) {
         let node = ast[i]
+        if (node.type === "offset") {
+            ctx.iotaCount++
+            ///@ts-ignore
+            node.type = "number_literal"
+            //@ts-ignore
+            node.value = ctx.iotaCount
+        }
+        if (node.type === "reset") {
+            ///@ts-ignore
+            node.type = "number_literal"
+            //@ts-ignore
+            node.value = ctx.iotaCount
+            ctx.iotaCount = 0
+        }
         if (node.type === "identifier") {
             if (node.value in ctx.consts) {
                 //@ts-ignore
@@ -207,6 +225,7 @@ const getContext = async (ast: AST): Promise<{ ast: AST, context: Context }> => 
                     procs: { ...ctx.procs, ...file.context.procs },
                     memories: { ...ctx.memories, ...file.context.memories },
                     memorySize: ctx.memorySize + file.context.memorySize,
+                    iotaCount: ctx.iotaCount + file.context.iotaCount
                 }
                 ast.splice(i, 0, ...file.ast)
                 l += file.ast.length - 1
@@ -370,6 +389,10 @@ while (
                 code += `stack.ne()`; break
             case "include":
                 code += `// include file \n`; break
+            case "offset":
+                throw new Error("this should not happen and is a bug"); break
+            case "reset":
+                throw new Error("this should not happen and is a bug"); break
             default:
                 return assertUnreachable(node)
         }

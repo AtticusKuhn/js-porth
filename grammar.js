@@ -160,6 +160,8 @@ var grammar = {
     {"name": "intrinsic", "symbols": [(lexer.has("cast_bool") ? {type: "cast_bool"} : cast_bool)], "postprocess": convertTokenId},
     {"name": "intrinsic", "symbols": [(lexer.has("here") ? {type: "here"} : here)], "postprocess": convertTokenId},
     {"name": "intrinsic", "symbols": [(lexer.has("stop") ? {type: "stop"} : stop)], "postprocess": convertTokenId},
+    {"name": "intrinsic", "symbols": [(lexer.has("offset") ? {type: "offset"} : offset)], "postprocess": convertTokenId},
+    {"name": "intrinsic", "symbols": [(lexer.has("reset") ? {type: "reset"} : reset)], "postprocess": convertTokenId},
     {"name": "identifier", "symbols": [(lexer.has("identifier") ? {type: "identifier"} : identifier)], "postprocess": convertTokenId},
     {"name": "__ml$ebnf$1", "symbols": []},
     {"name": "__ml$ebnf$1", "symbols": ["__ml$ebnf$1", "multi_line_ws_char"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},

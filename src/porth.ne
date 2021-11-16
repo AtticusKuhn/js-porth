@@ -175,6 +175,8 @@ intrinsic -> %plus {% convertTokenId %}
     |%cast_bool {% convertTokenId %}
     |%here {% convertTokenId %}
     |%stop {% convertTokenId %}
+    |%offset {% convertTokenId %}
+    |%reset {% convertTokenId %}
 
 
 identifier -> %identifier {% convertTokenId %}

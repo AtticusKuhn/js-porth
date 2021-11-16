@@ -7,14 +7,15 @@ const outputjs = document.getElementById("outputjs") as HTMLDivElement
 const run = document.getElementById("run") as HTMLButtonElement
 const autorun = document.getElementById("autorun") as HTMLInputElement
 const select = document.getElementById("select") as HTMLSelectElement
-const update = function (text: string) {
+const highlighter = document.querySelector("#highlighting-content") as HTMLPreElement;
+const update = function (_text: string) {
     let result_element = document.querySelector("#highlighting-content") as HTMLElement;
     // Handle final newlines (see article)
-    if (text[text.length - 1] == "\n") {
-        text += " ";
-    }
+    // if (text[text.length - 1] == "\n") {
+    //     text += " ";
+    // }
     // Update code
-    result_element.innerHTML = text.replace(new RegExp("&", "g"), "&amp;").replace(new RegExp("<", "g"), "&lt;"); /* Global RegExp */
+    // result_element.innerHTML = text.replace(new RegExp("&", "g"), "&amp;").replace(new RegExp("<", "g"), "&lt;"); /* Global RegExp */
     // Syntax Highlight
     //@ts-ignore
     Prism.highlightElement(result_element);
@@ -29,16 +30,24 @@ window.sync_scroll = function (element: HTMLElement) {
     result_element.scrollTop = element.scrollTop;
     result_element.scrollLeft = element.scrollLeft;
 }
+let string = /(?:"(?:\\(?:\r\n|[\s\S])|[^"\\\r\n])*"|'(?:\\(?:\r\n|[\s\S])|[^'\\\r\n])*')/;
+
 //@ts-ignore
 Prism.languages.porth = {
+    comment: /\/\/[^\n]*/,
+
+    // 'comment': /\/\*[\s\S]*?\*\//,
+    string_literal: {
+        pattern: string,
+        greedy: true
+    }, ///"(?:[^\n\\"]|\\["\\ntbfr])*"/,
+    number_literal: /[0-9]+(?:\.[0-9]+)?/,
     ws: /[ \t]+/,
     nl: /[\n\s]/,
-    comment: /\/\/[^\n]*/,
-    string_literal: /"(?:[^\n\\"]|\\["\\ntbfr])*"/,
-    number_literal: /[0-9]+(?:\.[0-9]+)?/,
-    intrinsic: /\+|\-|\*|divmod|max|print|over|swap|dup|mod|drop|!8|@8|!16|@16|!64|@64|shl|shr|or|and|ne|not|rot|!32|@32|here|stop|>=|<=|!=|!|cast\(ptr\)|cast\(bool\)|cast\(int\)|\=|\>|\</,
+    intrinsic: /\+|\-|\*|divmod|max|print|over|swap|dup|mod|drop|!8|@8|!16|@16|!64|@64|shl|shr|or|and|!=|not|rot|!32|@32|here|stop|>=|<=|!=|!|cast\(ptr\)|cast\(bool\)|cast\(int\)|\=|\>|\</,
     keyword: /if|if\*|else|while|do|include|memory|proc|const|end|offset|reset|in/,
     identifier: /[^\s \t]+/,
+
 }
 
 //@ts-ignore
@@ -63,6 +72,7 @@ select.onchange = async () => {
     const text = await req.text()
     input.value = text;
     set();
+    inputChange()
 }
 
 
@@ -76,16 +86,22 @@ const set = async () => {
 run.onclick = () => {
     set()
 }
-input.onchange = () => {
+const inputChange = () => {
+    highlighter.innerHTML = input.value
+    //@ts-ignore
+    Prism.highlightElement(highlighter)
     if (autorun.checked) {
-
         set()
     }
 }
+autorun.onchange = () => {
+    set()
+}
+input.onchange = () => {
+    inputChange()
+}
 input.oninput = () => {
-    if (autorun.checked) {
-        set()
-    }
+    inputChange()
 }
 set()
 
