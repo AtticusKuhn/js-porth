@@ -230,6 +230,7 @@ https://prismjs.com/download.html#themes=prism-funky&languages=markup */
             <option value="fizz-buzz.porth">fizz buzz</option>
             <option value="ifelse.porth">if else</option>
             <option value="whileloops.porth">while loops</option>
+            <option value="rule110.porth">rule 110</option>
         </select>
     </div>
     <div class="row">
@@ -237,10 +238,9 @@ https://prismjs.com/download.html#themes=prism-funky&languages=markup */
             <h1>Input Porth Code</h1>
             <div style="height: 200px;">
                 <div class="container_row">
-
                     <textarea class="layer1" id="editing" spellcheck="false"
                         oninput="update(this.value); sync_scroll(this);" onscroll="sync_scroll(this);"
-                        onkeydown="check_tab(this, event);"></textarea>
+                        onkeydown="check_tab(this, event);">1 2 + print</textarea>
                     <pre class="layer2" id="highlighting" aria-hidden="true">
                     <code class="language-porth" id="highlighting-content">1 2 + print</code>
                 </pre>
