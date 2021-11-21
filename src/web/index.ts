@@ -22,14 +22,15 @@ const update = function (_text: string) {
 }
 //@ts-ignore
 window.update = update;
-//@ts-ignore
-window.sync_scroll = function (element: HTMLElement) {
+const sync_scroll = function (element: HTMLElement) {
     /* Scroll result to scroll coords of event - sync with textarea */
     let result_element = document.querySelector("#highlighting") as HTMLElement;
     // Get and set x and y
     result_element.scrollTop = element.scrollTop;
     result_element.scrollLeft = element.scrollLeft;
 }
+//@ts-ignore
+window.sync_scroll = sync_scroll
 let string = /(?:"(?:\\(?:\r\n|[\s\S])|[^"\\\r\n])*"|'(?:\\(?:\r\n|[\s\S])|[^'\\\r\n])*')/;
 
 //@ts-ignore
@@ -77,6 +78,7 @@ select.onchange = async () => {
 
 
 const set = async () => {
+    sync_scroll(input);
     console.log("input changed")
     const jscode = await main(input.value)
     outputjs.innerText = jscode

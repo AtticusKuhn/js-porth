@@ -25,7 +25,7 @@ type loc = {
 }
 type Conditional = { type: 'if', body: AST } & loc
     | { type: 'ifElse', body: AST, elseBranch: AST, elseCondition?: AST } & loc
-type Proc = { type: "proc", name: string, body: AST } & loc
+type Proc = { type: "proc", name: string, body: AST, memories: Memories, memorySize: number } & loc
 type Block = "while" | "if" | " ifElse" | "proc" | "memory" | "macro";
 type str = { type: "string_literal", value: string } & loc
 type Constant = { type: 'const', name: string, body: AST } & loc
@@ -99,10 +99,11 @@ function parse(code: string): either<string, AST> {
     }
 
 }
+type Memories = Record<string, number>
 type Context = {
     procs: Record<string, Proc>,
     consts: Record<string, number>,
-    memories: Record<string, number>,
+    memories: Memories,
     memorySize: number;
     iotaCount: number;
 }
@@ -111,7 +112,9 @@ const typeCheck = (ast: AST): string[] => {
     console.log("typecheck called")
     let errors: string[] = []
     console.log("ast", ast)
-    for (const node of ast) {
+    let l = ast.length;
+    for (let i = 0; i < l; i++) {
+        let node = ast[i]
         console.log("in typecheck, it's", node?.inside)
         if (node.type === "const") {
             typeCheck(node.body)
@@ -124,7 +127,7 @@ const typeCheck = (ast: AST): string[] => {
         }
         if (node.type === "memory") {
             typeCheck(node.body)
-            if (node.inside && node.inside !== "proc") throw new Error(`a proc cannot be defined inside a ${node.inside}`)
+            if (node.inside && node.inside !== "proc") throw new Error(`a memory cannot be defined inside a ${node.inside}`)
         }
         if (node.type === "if") {
             typeCheck(node.body)
@@ -137,6 +140,46 @@ const typeCheck = (ast: AST): string[] => {
     }
     return errors
 }
+const postprocess = (ast: AST, ctx: Context): AST => {
+    let l = ast.length;
+    for (let i = 0; i < l; i++) {
+        let node = ast[i]
+        if (node.type === "const") {
+            node.body = postprocess(node.body, ctx)
+        };
+
+        if (node.type === "proc") {
+            node.body = postprocess(node.body, ctx)
+        }
+        if (node.type === "memory") {
+            node.body = postprocess(node.body, ctx)
+        }
+        if (node.type === "if") {
+            node.body = postprocess(node.body, ctx)
+        }
+        if (node.type === "ifElse") {
+            node.body = postprocess(node.body, ctx)
+            node.elseBranch = postprocess(node.elseBranch, ctx)
+            node.elseCondition && (node.elseBranch = postprocess(node.elseCondition, ctx))
+        }
+        if (node.type === "offset") {
+            ctx.iotaCount++
+            ///@ts-ignore
+            node.type = "number_literal"
+            //@ts-ignore
+            node.value = ctx.iotaCount
+        }
+        if (node.type === "reset") {
+            ///@ts-ignore
+            node.type = "number_literal"
+            //@ts-ignore
+            node.value = ctx.iotaCount
+            ctx.iotaCount = 0
+        }
+    }
+    return ast;
+}
+
 const getContext = async (ast: AST): Promise<{ ast: AST, context: Context }> => {
     let ctx: Context = {
         procs: {},
@@ -151,14 +194,20 @@ const getContext = async (ast: AST): Promise<{ ast: AST, context: Context }> => 
             ctx.consts[node.name] = evalStatements(node.body, ctx)
         }
         if (node.type === "proc") {
-            if (node.inside !== undefined) throw new Error(`a const cannot be defined inside a ${node.inside}`)
+            if (node.inside !== undefined) throw new Error(`a proc cannot be defined inside a ${node.inside}`)
             //@ts-ignore
             ctx.procs[node.name] = genCodeAux(node.body, ctx)
         }
         if (node.type === "memory") {
-            if (node.inside !== undefined) throw new Error(`a const cannot be defined inside a ${node.inside}`)
-            ctx.memories[node.name] = ctx.memorySize
-            ctx.memorySize += evalStatements(node.body, ctx)
+            if (node.inside !== undefined && node.inside !== "proc") throw new Error(`a memory cannot be defined inside a ${node.inside}`)
+
+            if (node.inside === "proc") {
+                ctx.procs[node.inside].memories[node.name] = ctx.memorySize
+                ctx.procs[node.inside].memorySize += evalStatements(node.body, ctx)
+            } else {
+                ctx.memories[node.name] = ctx.memorySize
+                ctx.memorySize += evalStatements(node.body, ctx)
+            }
         }
     }
     let l = ast.length;
@@ -266,7 +315,7 @@ function evalStatements(ast: AST, ctx: Context): number {
     if(typeof res === "string"){
      return JSON.stringify(res);
     }else{
-        return res;
+        return res ;
     };
      `
     const code = new Function(evalledCode);
@@ -279,7 +328,7 @@ function assertUnreachable(x: never): never {
 function genCodeAux(ast: AST, ctx: Context): string {
     return ast.map((node: Node) => {
         let code = ""
-        code += `// generated code for ${node.type} operation \n`
+        // code += `// generated code for ${node.type} operation \n`
         switch (node.type) {
             case "number_literal":
                 code += `stack.push(${node.value})`
@@ -390,9 +439,9 @@ while (
             case "include":
                 code += `// include file \n`; break
             case "offset":
-                throw new Error("this should not happen and is a bug"); break
+                code += `stack.push(${ctx.iotaCount})`; break
             case "reset":
-                throw new Error("this should not happen and is a bug"); break
+                code += `stack.push(${ctx.iotaCount})`; break
             default:
                 return assertUnreachable(node)
         }
@@ -552,7 +601,7 @@ Array.prototype.store8 = function () {
     let a = this.pop()
     let b = this.pop()
     if (a === undefined || b===undefined) throw new Error("not enough arguments for store8 intrinsic")
-    memory[a] = b;
+    memory[a] = (b & 0xFF);
 }
 Array.prototype.load8 = function () {
     let a = this.pop()
@@ -633,7 +682,8 @@ export async function main(prog: string): Promise<string> {
         // fs.writeFileSync("./ast.json", JSON.stringify(ast, null, 4))
         try {
             const errors = typeCheck(maybeAST.value)
-            const { ast, context } = await getContext(maybeAST.value)
+            let { ast, context } = await getContext(maybeAST.value)
+            ast = postprocess(ast, context)
             const code = genCode(ast, context)
             // const errors = typeCheck(ast)
             console.log("typecheck errors are", errors)
